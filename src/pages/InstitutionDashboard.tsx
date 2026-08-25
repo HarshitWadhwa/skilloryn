@@ -70,8 +70,8 @@ export default function InstitutionDashboard() {
                 <p className="text-sm font-bold text-ink">State University</p>
                 <p className="text-xs text-muted font-medium">Career Services</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-cream/85 flex items-center justify-center border-2 border-cyan-500/30 shadow-sm cursor-pointer overflow-hidden">
-                <img src={institutionLogo} alt="State University" className="w-9 h-9 object-contain" />
+              <div className="w-10 h-10 rounded-full bg-cream/85 text-ink flex items-center justify-center border-2 border-cyan-500/30 shadow-sm cursor-pointer font-bold">
+                SU
               </div>
             </div>
           </div>
