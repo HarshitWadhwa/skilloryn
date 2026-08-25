@@ -110,11 +110,11 @@ export default function StudentDashboard() {
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-ink">Jane Doe</p>
+                <p className="text-sm font-bold text-ink">Hari Krishan</p>
                 <p className="text-xs text-muted font-medium">Lvl 12 Analyst</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30 flex items-center justify-center font-bold border-2 border-line shadow-sm cursor-pointer">
-                JD
+                HK
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function StudentDashboard() {
               <div className="space-y-8 animate-fade-in">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-ink mb-2">Welcome back, Jane.</h1>
+                    <h1 className="text-3xl font-bold text-ink mb-2">Welcome back, Hari.</h1>
                     <p className="text-muted">You are <span className="font-bold text-fuchsia-300">160 EP</span> away from reaching Level 13.</p>
                   </div>
                   <button
