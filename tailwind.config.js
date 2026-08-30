@@ -32,8 +32,8 @@ export default {
         dark: { '700': '#38475a', '800': '#243444', '900': '#162331' },
       },
       fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 16px 50px rgba(27, 43, 58, 0.075)',
