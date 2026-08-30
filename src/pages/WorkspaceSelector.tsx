@@ -1,151 +1,216 @@
-import { useNavigate } from 'react-router-dom';
-import { User, Building2, GraduationCap, ArrowRight, Sparkles, Target, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Building2, GraduationCap, ArrowRight, Sparkles, ShieldCheck, CheckCircle2, ArrowLeft, Lock, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
+import institutionLogo from '../assets/institution-logo-theme.png';
 
 const workspaces = [
   {
     id: 'student',
-    title: 'Student Workspace',
+    title: 'Student & Learner',
+    shortTitle: 'Student',
     role: 'For Learners & Candidates',
-    description: 'Build your skill passport, complete missions, and get matched to jobs based on verified evidence.',
-    icon: User,
-    color: 'from-amber-500 to-orange-400',
-    shadow: 'shadow-amber-500/20',
-    border: 'border-amber-500/30',
-    bgLight: 'bg-orange-50',
-    textLight: 'text-ink',
-    features: ['Skill Passport', 'AI Career Coach', 'Real-world Missions'],
-    route: '/student'
+    badge: 'Candidate Cockpit',
+    description: 'Build your verifiable skill passport, track adaptive learning roadmaps, manage private applications, and connect with opportunities based on proven evidence.',
+    icon: GraduationCap,
+    themeClass: 'hover:border-copper',
+    badgeBg: 'bg-amber-100/80 text-amber-900 border-amber-300/60',
+    iconBg: 'bg-navy text-cream group-hover:bg-copper group-hover:text-white',
+    route: '/student',
+    features: [
+      'Verifiable Skill Passport & Evidence Ledger',
+      'Actionable Dependency-Based Learning Roadmap',
+      'Unified Opportunity Discovery & Private Applications',
+      'Context-Aware AI Career Coach & Diagnostic Labs',
+    ],
   },
   {
     id: 'company',
-    title: 'Company Workspace',
-    role: 'For Recruiters & Hiring Managers',
-    description: 'Source candidates based on verified skills, review evidence, and streamline your hiring pipeline.',
+    title: 'Company & Recruiter',
+    shortTitle: 'Company',
+    role: 'For Hiring Teams & Talent Leads',
+    badge: 'Employer Cockpit',
+    description: 'Review candidates by proven competency scores, inspect real project evidence with consent, provide structured feedback, and streamline hiring pipelines.',
     icon: Building2,
-    color: 'from-blue-500 to-cyan-500',
-    shadow: 'shadow-blue-500/20',
-    border: 'border-blue-500/30',
-    bgLight: 'bg-blue-50',
-    textLight: 'text-blue-700',
-    features: ['Evidence Review', 'Candidate Pipeline', 'Smart Matching'],
-    route: '/company'
+    themeClass: 'hover:border-cyan-500',
+    badgeBg: 'bg-cyan-100/80 text-cyan-900 border-cyan-300/60',
+    iconBg: 'bg-navy text-cream group-hover:bg-cyan-700 group-hover:text-white',
+    route: '/company',
+    features: [
+      'Candidate Pipeline with Verified Competency Filtering',
+      'Artifact & Repository Evidence Review Modal',
+      'Structured Competency Feedback System',
+      'Private Direct Candidate Messaging',
+    ],
   },
   {
     id: 'institution',
-    title: 'Institution Workspace',
+    title: 'Institution & Educator',
+    shortTitle: 'Institution',
     role: 'For Universities & Bootcamps',
-    description: 'Track cohort readiness, identify skill gaps, and deploy targeted interventions at scale.',
-    icon: GraduationCap,
-    color: 'from-emerald-500 to-green-400',
-    shadow: 'shadow-emerald-500/20',
-    border: 'border-emerald-500/30',
-    bgLight: 'bg-emerald-50',
-    textLight: 'text-emerald-700',
-    features: ['Cohort Analytics', 'Readiness Heatmaps', 'Intervention Tools'],
-    route: '/institution'
-  }
+    badge: 'Academic Cockpit',
+    description: 'Monitor aggregate, privacy-preserving cohort readiness, identify critical curriculum skill gaps, and deploy targeted interventions at scale.',
+    icon: User,
+    themeClass: 'hover:border-green-500',
+    badgeBg: 'bg-green-100/80 text-green-900 border-green-300/60',
+    iconBg: 'bg-navy text-cream group-hover:bg-green-700 group-hover:text-white',
+    route: '/institution',
+    features: [
+      'Aggregate Cohort Readiness & Alignment Heatmaps',
+      'Curriculum Skill-Gap Trend Identification',
+      'Targeted Intervention Planner & Deployment Tool',
+      'Privacy-Preserving Aggregate Institutional Reports',
+    ],
+  },
 ];
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
+    transition: { staggerChildren: 0.12 },
+  },
 };
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { y: 16, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
-    transition: { type: 'spring' as const, stiffness: 100 }
-  }
+    transition: { type: 'spring' as const, stiffness: 120, damping: 14 },
+  },
 };
 
 export default function WorkspaceSelector() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '6s' }} />
-        <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '5s' }} />
+    <div className="min-h-screen flex flex-col justify-between bg-paper text-ink relative overflow-hidden font-sans">
+      {/* Background Ambience */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="theme-orb theme-orb-one" />
+        <div className="theme-orb theme-orb-two" />
+        <div className="theme-grid" />
+        <div className="pointer-glow" />
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 relative z-10 pt-24 pb-12">
-        <div className="max-w-6xl w-full">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-line text-ink font-bold text-sm mb-6 shadow-sm">
-              <Sparkles className="w-4 h-4 text-amber-500" /> Select Your Workspace
+      {/* Header */}
+      <header className="relative z-10 border-b border-line/70 bg-surface/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-cream/95 flex items-center justify-center shadow-sm border border-copper-soft/40 overflow-hidden group-hover:scale-105 transition-transform">
+              <img src={institutionLogo} alt="Skilloryn" className="w-8 h-8 object-contain" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-ink mb-6 tracking-tight">
-              Welcome to <span className="headline-hook">Skilloryn</span>
-            </h1>
-            <p className="text-xl text-muted max-w-2xl mx-auto font-medium">
-              Choose how you want to experience the platform. Each workspace is tailored to your specific goals and workflows.
-            </p>
-          </motion.div>
+            <span className="font-bold text-2xl text-ink tracking-tight font-display">
+              Skilloryn
+            </span>
+          </Link>
 
+          <div className="flex items-center gap-3">
+            <Link
+              to="/sign-in"
+              className="text-xs sm:text-sm font-semibold text-muted hover:text-navy px-3 py-1.5 rounded-xl hover:bg-surface-strong/60 transition-colors flex items-center gap-1.5"
+            >
+              <ArrowLeft className="w-4 h-4" /> Sign In / Switch Account
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10 relative z-10">
+        <div className="max-w-6xl w-full">
+          {/* Title & Consent Notice */}
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cream border border-copper-soft/60 text-copper-strong text-xs font-bold shadow-xs mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-copper" /> Choose Workspace Cockpit
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy font-display tracking-tight mb-3">
+              Select Your Workspace
+            </h1>
+            <p className="text-sm sm:text-base text-muted max-w-2xl mx-auto leading-relaxed">
+              Choose how you want to experience the platform. Each workspace is tailored to a specific role’s goals and workflows.
+            </p>
+
+            {/* Privacy & Ownership Clarity Banner */}
+            <div className="mt-5 p-3.5 rounded-2xl bg-surface border border-line flex items-start sm:items-center gap-3 text-left max-w-2xl mx-auto shadow-xs">
+              <Info className="w-4 h-4 text-copper shrink-0 mt-0.5 sm:mt-0" />
+              <p className="text-xs text-body leading-relaxed">
+                <strong>Consent & Privacy:</strong> Workspace selection changes the dashboard view, <em>not your account permissions or data ownership</em>. Students always retain complete ownership of private evidence, assessments, and applications.
+              </p>
+            </div>
+          </div>
+
+          {/* 3 Workspaces Grid */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid lg:grid-cols-3 gap-8"
+            className="grid lg:grid-cols-3 gap-6 sm:gap-8"
           >
-            {workspaces.map((workspace) => (
-              <motion.div
-                key={workspace.id}
-                variants={itemVariants}
-                onClick={() => navigate(workspace.route)}
-                className={`group relative bg-surface border border-line rounded-[2rem] p-8 cursor-pointer overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:border-orange-300`}
-              >
-                {/* Glow Effect */}
-                <div className={`absolute top-0 right-0 w-48 h-48 bg-gradient-to-br ${workspace.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-700 rounded-full -mr-20 -mt-20`}></div>
-                
-                <div className="relative z-10 flex flex-col h-full">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${workspace.color} flex items-center justify-center mb-8 shadow-md transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500`}>
-                    <workspace.icon className="w-8 h-8 text-white" />
-                  </div>
-                  
-                  <div className={`inline-flex px-3 py-1 rounded-full ${workspace.bgLight} ${workspace.textLight} border ${workspace.border} text-xs font-bold mb-4 w-fit items-center gap-1.5`}>
-                    <Target className="w-3 h-3" /> {workspace.role}
-                  </div>
-                  
-                  <h2 className="text-2xl font-bold text-ink mb-4 group-hover:text-amber-500 transition-colors">
-                    {workspace.title}
-                  </h2>
-                  
-                  <p className="text-muted mb-8 flex-1 leading-relaxed text-sm">
-                    {workspace.description}
-                  </p>
-
-                  <div className="space-y-3 mb-10 p-4 bg-paper rounded-2xl border border-line group-hover:border-orange-300/50 transition-colors">
-                    {workspace.features.map((feature, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm font-medium text-body group-hover:text-ink transition-colors">
-                        <CheckCircle2 className={`w-4 h-4 ${workspace.textLight} shrink-0`} />
-                        <span>{feature}</span>
+            {workspaces.map((ws) => {
+              const Icon = ws.icon;
+              return (
+                <motion.div
+                  key={ws.id}
+                  variants={itemVariants}
+                  onClick={() => navigate(ws.route)}
+                  className={`group relative flex flex-col justify-between rounded-3xl bg-surface border border-line ${ws.themeClass} p-7 sm:p-8 cursor-pointer shadow-card hover:shadow-card-hover hover:-translate-y-1.5 transition-all duration-300 overflow-hidden`}
+                >
+                  <div className="space-y-5 relative z-10">
+                    <div className="flex items-start justify-between">
+                      <div className={`w-14 h-14 rounded-2xl ${ws.iconBg} flex items-center justify-center shadow-md transition-colors duration-300`}>
+                        <Icon className="w-7 h-7" />
                       </div>
-                    ))}
+                      <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${ws.badgeBg}`}>
+                        {ws.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h2 className="text-2xl font-bold text-navy group-hover:text-copper transition-colors font-display">
+                        {ws.title}
+                      </h2>
+                      <p className="text-xs text-muted font-semibold mt-1">{ws.role}</p>
+                      <p className="text-xs sm:text-sm text-body mt-3 leading-relaxed">
+                        {ws.description}
+                      </p>
+                    </div>
+
+                    {/* Features checklist */}
+                    <div className="space-y-2 pt-3 border-t border-line/60">
+                      {ws.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs text-body font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-copper shrink-0 mt-0.5" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className={`mt-auto flex items-center justify-between w-full py-4 px-6 rounded-xl bg-ink border border-ink text-white font-bold group-hover:bg-amber-500 group-hover:border-amber-500 shadow-md transition-all`}>
-                    <span>Enter Workspace</span>
-                    <ArrowRight className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" />
+
+                  <div className="mt-8 pt-4 border-t border-line/60 relative z-10">
+                    <div className="w-full py-3 px-5 rounded-xl bg-navy group-hover:bg-copper text-cream font-bold text-xs sm:text-sm flex items-center justify-between shadow-sm transition-colors">
+                      <span>Launch {ws.shortTitle} Workspace</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-line/60 bg-surface/50 py-4 px-4 text-center text-xs text-muted">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>&copy; {new Date().getFullYear()} Skilloryn Inc. Verified Evidence & Career Intelligence.</span>
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-copper" /> Consent-First Architecture</span>
+            <span>&bull;</span>
+            <span className="flex items-center gap-1"><Lock className="w-3.5 h-3.5 text-copper" /> End-to-End Encrypted Records</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

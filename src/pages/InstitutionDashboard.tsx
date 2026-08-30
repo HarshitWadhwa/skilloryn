@@ -1,464 +1,610 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, BarChart3, TrendingUp, AlertCircle, LayoutDashboard, Target, Users, Activity, ChevronRight, CheckCircle2,
-  Zap, AlertTriangle
+  GraduationCap, Users, BarChart3, Target, Zap, Settings,
+  CheckCircle2, ArrowLeft, ChevronRight, Download,
+  Plus, RefreshCw, Menu, X, ShieldCheck
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import institutionLogo from '../assets/institution-logo-theme.png';
+import { INITIAL_COHORTS, INITIAL_SKILL_GAPS, INITIAL_INTERVENTIONS, type CohortItem, type DeployedIntervention } from '../data/institutionData';
+
+type InstitutionTab = 'overview' | 'cohorts' | 'readiness' | 'gaps' | 'interventions' | 'reports';
 
 export default function InstitutionDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'readiness' | 'gaps' | 'demand'>('overview');
+
+  const [activeTab, setActiveTab] = useState<InstitutionTab>('overview');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Institution State with LocalStorage Sync
+  const [cohorts] = useState<CohortItem[]>(() => {
+    const saved = localStorage.getItem('skilloryn_institution_cohorts');
+    return saved ? JSON.parse(saved) : INITIAL_COHORTS;
+  });
+  const [interventions, setInterventions] = useState<DeployedIntervention[]>(() => {
+    const saved = localStorage.getItem('skilloryn_institution_interventions');
+    return saved ? JSON.parse(saved) : INITIAL_INTERVENTIONS;
+  });
+
+  // Modal State
+  const [deployModalOpen, setDeployModalOpen] = useState(false);
+  const [selectedCohortId, setSelectedCohortId] = useState('cohort-2026-a');
+  const [interventionTitle, setInterventionTitle] = useState('SQL Window Functions & Analytical Framing Lab');
+  const [interventionDeadline, setInterventionDeadline] = useState('2026-09-20');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('skilloryn_institution_interventions', JSON.stringify(interventions));
+  }, [interventions]);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const handleDeployIntervention = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cohort = cohorts.find((c) => c.id === selectedCohortId) || cohorts[0];
+
+    const newIntervention: DeployedIntervention = {
+      id: `interv-${Date.now()}`,
+      title: interventionTitle,
+      targetCohortId: cohort.id,
+      targetCohortName: cohort.name,
+      enrolledStudentsCount: cohort.totalStudents,
+      status: 'In Progress',
+      deadline: interventionDeadline,
+      projectedReadinessUplift: 15,
+      completionRate: 0,
+    };
+
+    setInterventions([newIntervention, ...interventions]);
+    setDeployModalOpen(false);
+    showToast(`Intervention deployed to ${cohort.totalStudents} students!`);
+  };
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'readiness', label: 'Cohort Readiness', icon: BarChart3 },
-    { id: 'gaps', label: 'Intervention Planner', icon: Target },
-    { id: 'demand', label: 'Employer Demand', icon: TrendingUp },
-  ] as const;
+    { id: 'overview' as InstitutionTab, label: 'Institution Overview', icon: GraduationCap },
+    { id: 'cohorts' as InstitutionTab, label: 'Cohorts', icon: Users },
+    { id: 'readiness' as InstitutionTab, label: 'Readiness Analytics', icon: BarChart3 },
+    { id: 'gaps' as InstitutionTab, label: 'Skill-Gap Trends', icon: Target },
+    { id: 'interventions' as InstitutionTab, label: 'Interventions', icon: Zap },
+    { id: 'reports' as InstitutionTab, label: 'Reports & Settings', icon: Settings },
+  ];
 
   return (
-    <div className="min-h-screen bg-transparent relative z-10 flex font-sans">
-      {/* Sidebar Navigation */}
-      <aside className="w-64 bg-navy border-r border-navy-line hidden md:flex flex-col z-20 text-white">
-        <div className="h-16 flex items-center px-6 border-b border-navy-line">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/choose-workspace')}>
-            <div className="w-8 h-8 rounded-lg bg-cream/95 flex items-center justify-center shadow-sm border border-copper-soft/30 overflow-hidden">
-              <img src={institutionLogo} alt="Institution workspace" className="w-7 h-7 object-contain" />
+    <div className="min-h-screen flex bg-paper text-ink font-sans relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="theme-orb theme-orb-two" />
+        <div className="theme-grid" />
+      </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl bg-navy text-cream font-bold text-xs shadow-xl border border-green-400/50 animate-slide-up flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-300" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* DESKTOP SIDEBAR */}
+      <aside className="w-64 bg-navy border-r border-navy-line hidden md:flex flex-col z-20 text-white shrink-0">
+        <div className="h-20 flex items-center px-6 border-b border-navy-line/70 justify-between">
+          <div
+            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => navigate('/choose-workspace')}
+            title="Switch Workspace"
+          >
+            <div className="w-9 h-9 rounded-xl bg-cream/95 flex items-center justify-center shadow-sm border border-copper-soft/30 overflow-hidden group-hover:scale-105 transition-transform">
+              <img src={institutionLogo} alt="Skilloryn" className="w-8 h-8 object-contain" />
             </div>
-            <span className="font-bold text-cream tracking-tight">Skilloryn <span className="text-copper-soft font-normal text-sm">Institution</span></span>
+            <div>
+              <span className="font-bold text-lg text-cream tracking-tight block font-display leading-tight">
+                Skilloryn
+              </span>
+              <span className="text-[10px] text-green-300 font-bold uppercase tracking-wider block">
+                Academic Cockpit
+              </span>
+            </div>
           </div>
         </div>
 
-        <nav className="flex-1 py-6 px-4 space-y-1">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === item.id
-                  ? 'bg-cream text-navy shadow-sm border border-copper-soft'
-                  : 'text-sidebar-muted hover:bg-navy-soft hover:text-cream'
+        <nav className="flex-1 py-5 px-3.5 space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? 'bg-cream text-navy shadow-sm font-bold border border-green-300'
+                    : 'text-sidebar-muted hover:bg-navy-soft hover:text-cream'
                 }`}
-            >
-              <item.icon className={`w-5 h-5 transition-colors ${activeTab === item.id ? 'text-amber-600' : 'text-muted'}`} />
-              {item.label}
-            </button>
-          ))}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-green-700' : 'text-sidebar-muted'}`} />
+                <span>{item.label}</span>
+                {item.id === 'interventions' && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] bg-green-500/20 text-green-300 font-bold">
+                    {interventions.length}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="p-4 border-t border-navy-line">
-          <button onClick={() => navigate('/choose-workspace')} className="w-full flex items-center gap-2 text-sidebar-muted hover:text-cream text-sm font-medium p-2 rounded-lg hover:bg-navy-soft transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Switch Workspace
+        <div className="p-4 border-t border-navy-line/70 space-y-2">
+          <button
+            onClick={() => navigate('/choose-workspace')}
+            className="w-full flex items-center justify-between text-sidebar-muted hover:text-cream text-xs font-semibold p-2.5 rounded-xl hover:bg-navy-soft transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 text-copper-soft" /> Switch Workspace
+            </span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
+          <Link
+            to="/sign-in"
+            className="w-full flex items-center justify-between text-sidebar-muted hover:text-rose-300 text-xs font-semibold p-2.5 rounded-xl hover:bg-navy-soft transition-colors"
+          >
+            <span>Sign Out</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
-        {/* Topbar */}
-        <header className="h-16 bg-surface/40 backdrop-blur-2xl border-b border-navy-line flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
-          <div className="flex items-center gap-4 md:hidden">
-            <div className="w-8 h-8 rounded-lg bg-cream flex items-center justify-center border border-copper-soft/30 overflow-hidden">
-              <img src={institutionLogo} alt="Institution workspace" className="w-7 h-7 object-contain" />
+      {/* MAIN VIEWPORT */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
+        <header className="h-16 bg-surface/80 backdrop-blur-xl border-b border-line flex items-center justify-between px-4 sm:px-6 shrink-0 sticky top-0 z-20">
+          <div className="flex items-center gap-3 md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-1.5 rounded-lg bg-surface border border-line text-navy"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-cream flex items-center justify-center border border-copper-soft/30 overflow-hidden">
+                <img src={institutionLogo} alt="Skilloryn" className="w-6 h-6 object-contain" />
+              </div>
+              <span className="font-bold text-sm font-display text-navy">Institution</span>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-end gap-6">
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-ink">State University</p>
-                <p className="text-xs text-muted font-medium">Career Services</p>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-cream/85 text-ink flex items-center justify-center border-2 border-cyan-500/30 shadow-sm cursor-pointer font-bold">
-                SU
-              </div>
+          <div className="hidden md:flex items-center gap-3">
+            <h1 className="text-base font-bold text-navy font-display capitalize">
+              {navItems.find((n) => n.id === activeTab)?.label}
+            </h1>
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-green-100 text-green-900 border border-green-300">
+              Department of Computer Science & Analytics
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block leading-tight">
+              <p className="text-xs font-bold text-navy">Dean Robert Miller</p>
+              <p className="text-[10px] text-muted">Director of Academic Readiness</p>
+            </div>
+            <div className="w-8 h-8 rounded-xl bg-navy text-cream flex items-center justify-center font-bold text-xs shadow-xs border border-copper-soft/40">
+              RM
             </div>
           </div>
         </header>
 
-        {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="max-w-5xl mx-auto">
+        {/* MOBILE DRAWER */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-navy text-white border-b border-navy-line p-4 space-y-1 z-30 shadow-xl">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold ${
+                    isActive ? 'bg-cream text-navy font-bold' : 'text-sidebar-muted hover:bg-navy-soft'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
+        {/* MAIN CONTENT AREA */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div className="max-w-6xl mx-auto space-y-8">
+
+            {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
-              <div className="space-y-8 animate-fade-in">
-                <div>
-                  <h1 className="text-3xl font-bold text-ink mb-2">Institution Command Center</h1>
-                  <p className="text-muted">Track cohort readiness patterns and deploy targeted interventions.</p>
-                </div>
+              <div className="space-y-6">
+                <div className="bg-navy text-cream rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-navy border border-navy-line/60">
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-green-200 text-xs font-bold border border-white/15">
+                        <ShieldCheck className="w-3.5 h-3.5 text-green-300" /> Aggregate Privacy-Safe Intelligence
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-bold font-display text-cream">
+                        Institutional Readiness Cockpit
+                      </h2>
+                      <p className="text-xs sm:text-sm text-ice max-w-2xl leading-relaxed">
+                        Track cohort career readiness, identify systemic curriculum bottlenecks, and deploy targeted interventions without compromising individual student privacy.
+                      </p>
+                    </div>
 
-                <div className="grid md:grid-cols-3 gap-6">
-                  {/* Alert Panel */}
-                  <div className="md:col-span-2 bg-navy border border-navy-line/60 rounded-3xl p-8 text-white shadow-md relative overflow-hidden group cursor-pointer hover:shadow-cyan-500/20 transition-all duration-300" onClick={() => setActiveTab('gaps')}>
-                    <div className="relative z-10">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 font-medium text-xs mb-4 backdrop-blur-md">
-                        <AlertCircle className="w-3 h-3" /> Action Required
-                      </div>
-                      <h2 className="text-3xl font-bold mb-3 group-hover:scale-[1.01] transition-transform origin-left">Widespread Gap: Advanced SQL</h2>
-                      <p className="text-ice mb-8 max-w-lg leading-relaxed text-sm"><span className="font-bold text-cream">68% of your Data Science cohort</span> failed their most recent Advanced SQL diagnostic. This is blocking them from 40+ saved opportunities.</p>
-                      <button className="px-6 py-3 bg-surface backdrop-blur-md text-ink border border-slate-300 rounded-xl font-bold text-sm group-hover:bg-surface-strong/20 transition-all flex items-center gap-2">
-                        Plan Intervention <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    </div>
-                    <div className="absolute -right-10 -bottom-10 opacity-20 group-hover:opacity-30 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700">
-                      <AlertCircle className="w-64 h-64" />
-                    </div>
-                  </div>
-
-                  {/* Quick Stats */}
-                  <div className="bg-surface backdrop-blur-md rounded-3xl p-6 border border-line shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer" onClick={() => setActiveTab('readiness')}>
-                    <div>
-                      <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center mb-6 border border-fuchsia-500/30 group-hover:scale-110 transition-transform duration-300">
-                        <Users className="w-6 h-6 text-fuchsia-300" />
-                      </div>
-                      <h3 className="font-bold text-ink mb-2 text-lg">Cohort Health</h3>
-                      <p className="text-muted text-sm mb-6"><span className="text-ink font-semibold">1,240</span> active students in the system.</p>
-                      
-                      <div className="space-y-4">
-                        <div className="group/bar">
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-muted font-medium group-hover/bar:text-ink transition-colors">Placement Ready</span>
-                            <span className="font-bold text-green-400">32%</span>
-                          </div>
-                          <div className="w-full bg-surface rounded-full h-3 overflow-hidden">
-                            <div className="bg-gradient-to-r from-green-500 to-green-400 h-full rounded-full w-[32%] relative">
-                              <div className="absolute inset-0 bg-surface/20 animate-pulse"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="w-full mt-8 py-3 bg-surface text-ink rounded-xl font-medium text-sm group-hover:bg-surface-strong/20 transition-colors">
-                      View Analytics
+                    <button
+                      onClick={() => setDeployModalOpen(true)}
+                      className="px-6 py-3 rounded-xl bg-copper hover:bg-copper-strong text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all shrink-0"
+                    >
+                      <Zap className="w-4 h-4" /> Deploy Intervention
                     </button>
                   </div>
                 </div>
 
-                {/* Bottom Row */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Recent Interventions */}
-                  <div className="bg-surface backdrop-blur-md rounded-3xl p-6 border border-line shadow-md">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="font-bold text-ink text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-amber-600" /> Recent Interventions
-                      </h3>
-                      <button className="text-xs text-muted hover:text-ink">View all</button>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex gap-4 items-start p-3 rounded-xl hover:bg-surface-strong transition-colors cursor-pointer border border-transparent hover:border-line">
-                        <div className="w-10 h-10 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                          <Target className="w-5 h-5 text-amber-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-ink mb-0.5">Deployed React Mission</p>
-                          <p className="text-xs text-muted">Mission sent to <span className="text-ink">245 students</span> failing React Basics.</p>
-                          <p className="text-xs text-muted mt-1">Yesterday</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-4 items-start p-3 rounded-xl hover:bg-surface-strong transition-colors cursor-pointer border border-transparent hover:border-line">
-                        <div className="w-10 h-10 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                          <CheckCircle2 className="w-5 h-5 text-green-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-ink mb-0.5">Cohort Milestone Reached</p>
-                          <p className="text-xs text-muted">Class of '25 hit 40% Placement Ready across all tracks.</p>
-                          <p className="text-xs text-muted mt-1">3 days ago</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-4 items-start p-3 rounded-xl hover:bg-surface-strong transition-colors cursor-pointer border border-transparent hover:border-line">
-                        <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                          <AlertCircle className="w-5 h-5 text-amber-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-ink mb-0.5">Skill Gap Alert Triggered</p>
-                          <p className="text-xs text-muted">Sudden drop in Python Pandas verification success rates.</p>
-                          <p className="text-xs text-muted mt-1">Last week</p>
-                        </div>
-                      </div>
-                    </div>
+                {/* KPI Metrics */}
+                <div className="grid sm:grid-cols-3 gap-6">
+                  <div className="bg-surface rounded-3xl p-6 border border-line shadow-card">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted block mb-1">Average Cohort Readiness</span>
+                    <span className="text-3xl font-extrabold text-navy font-display">84%</span>
+                    <p className="text-xs text-green-700 font-semibold mt-2">▲ 6% uplift since last semester</p>
                   </div>
 
-                  {/* Employer Demand Snapshot */}
-                  <div className="bg-surface backdrop-blur-md rounded-3xl p-6 border border-line shadow-md flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-ink text-lg flex items-center gap-2">
-                          <TrendingUp className="w-5 h-5 text-amber-600" /> Employer Demand Snapshot
-                        </h3>
-                      </div>
-                      
-                      <div className="space-y-5">
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="text-muted font-medium">Data Engineering <span className="text-green-400 ml-2 text-xs">↑ 24%</span></span>
-                          </div>
-                          <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                            <div className="bg-gradient-to-r from-green-600 to-green-400 h-full rounded-full w-[80%]"></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="text-muted font-medium">Frontend (React/Next) <span className="text-green-400 ml-2 text-xs">↑ 12%</span></span>
-                          </div>
-                          <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                            <div className="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full w-[65%]"></div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="text-muted font-medium">Cybersecurity <span className="text-rose-400 ml-2 text-xs">↓ 5%</span></span>
-                          </div>
-                          <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-                            <div className="bg-gradient-to-r from-rose-600 to-rose-400 h-full rounded-full w-[40%]"></div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-orange-300/10 border border-cyan-500/20 rounded-xl p-4 mt-6">
-                        <p className="text-xs text-cyan-200">
-                          <span className="font-bold text-ink">Pro Tip:</span> Consider deploying a Data Engineering bootcamp to your junior cohort to meet next year's projected demand spike.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <button onClick={() => setActiveTab('demand')} className="w-full mt-6 py-3 bg-surface border border-line text-ink rounded-xl font-medium text-sm hover:bg-surface-strong transition-colors">
-                      View Full Demand Trends
+                  <div className="bg-surface rounded-3xl p-6 border border-line shadow-card">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted block mb-1">Diagnostic Participation</span>
+                    <span className="text-3xl font-extrabold text-navy font-display">91%</span>
+                    <p className="text-xs text-muted mt-2">146 out of 160 active students assessed</p>
+                  </div>
+
+                  <div className="bg-surface rounded-3xl p-6 border border-line shadow-card">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted block mb-1">Top Systemic Gap</span>
+                    <span className="text-xl font-bold text-amber-700 font-display">Window Functions</span>
+                    <p className="text-xs text-muted mt-2">42% of Cohort 2026-A requires refresher</p>
+                  </div>
+                </div>
+
+                {/* Active Interventions Summary */}
+                <div className="bg-surface rounded-3xl p-6 sm:p-8 border border-line shadow-card space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm text-navy font-display">Active Remediation Interventions</h3>
+                    <button
+                      onClick={() => setActiveTab('interventions')}
+                      className="text-xs font-bold text-copper hover:underline flex items-center gap-1"
+                    >
+                      Manage All ({interventions.length}) <ChevronRight className="w-3.5 h-3.5" />
                     </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {interventions.map((interv) => (
+                      <div key={interv.id} className="p-4 rounded-2xl bg-paper border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div>
+                          <p className="font-bold text-navy text-sm">{interv.title}</p>
+                          <p className="text-[11px] text-muted">{interv.targetCohortName} · {interv.enrolledStudentsCount} Students Enrolled</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="font-bold text-green-700">+{interv.projectedReadinessUplift}% Projected Uplift</span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-cream border border-copper-soft text-copper-strong font-bold">
+                            {interv.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'readiness' && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            {/* TAB 2: COHORTS */}
+            {activeTab === 'cohorts' && (
+              <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-3xl border border-line shadow-card flex items-center justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-ink mb-2">Cohort Readiness Heatmap</h1>
-                    <p className="text-muted">Deep-dive into student preparedness across 4 key career pathways.</p>
-                  </div>
-                  <div className="flex items-center gap-3 w-full md:w-auto">
-                    <select className="bg-surface border border-line text-ink rounded-xl px-4 py-2 text-sm outline-none focus:border-cyan-500 hover:bg-surface-strong transition-colors cursor-pointer w-full md:w-auto">
-                      <option className="bg-surface">All Cohorts (1,250 Students)</option>
-                      <option className="bg-surface">Class of 2026</option>
-                      <option className="bg-surface">Class of 2027</option>
-                    </select>
+                    <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Cohort Rosters</span>
+                    <h2 className="text-2xl font-bold text-navy font-display mt-1">Monitored Cohorts</h2>
+                    <p className="text-xs text-muted mt-1">Aggregated performance and diagnostic participation by academic stream.</p>
                   </div>
                 </div>
 
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
-                  <div className="bg-surface border border-line rounded-2xl p-4 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-orange-300/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-colors"></div>
-                    <span className="text-2xl font-bold text-ink mb-1 block relative z-10">1,250</span>
-                    <span className="text-xs text-muted font-medium relative z-10">Total Enrolled</span>
-                  </div>
-                  <div className="bg-surface border border-line rounded-2xl p-4 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-colors"></div>
-                    <span className="text-2xl font-bold text-green-400 mb-1 block relative z-10">52%</span>
-                    <span className="text-xs text-muted font-medium relative z-10">Avg Placement Ready</span>
-                  </div>
-                  <div className="bg-surface border border-line rounded-2xl p-4 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors"></div>
-                    <span className="text-2xl font-bold text-amber-300 mb-1 block relative z-10">31%</span>
-                    <span className="text-xs text-muted font-medium relative z-10">On Track</span>
-                  </div>
-                  <div className="bg-surface border border-line rounded-2xl p-4 relative overflow-hidden group border-rose-500/20">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-colors"></div>
-                    <span className="text-2xl font-bold text-rose-400 mb-1 flex items-center gap-2 relative z-10">17% <AlertTriangle className="w-4 h-4"/></span>
-                    <span className="text-xs text-muted font-medium relative z-10">At Risk (Critical Gaps)</span>
-                  </div>
+                <div className="space-y-4">
+                  {cohorts.map((cohort) => (
+                    <div key={cohort.id} className="bg-surface rounded-3xl p-6 border border-line shadow-card space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <span className="text-xs font-bold text-muted">{cohort.department}</span>
+                          <h3 className="text-xl font-bold text-navy font-display mt-0.5">{cohort.name}</h3>
+                          <p className="text-xs text-muted">{cohort.totalStudents} Active Students</p>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-900 border border-green-300">
+                          {cohort.readinessRate}% Career Ready
+                        </span>
+                      </div>
+
+                      <div className="grid sm:grid-cols-3 gap-3 text-xs">
+                        <div className="p-3 rounded-2xl bg-paper border border-line">
+                          <span className="text-[10px] uppercase font-bold text-muted block mb-1">Diagnostic Completion:</span>
+                          <span className="text-base font-extrabold text-navy font-display">{cohort.diagnosticCompletionRate}%</span>
+                        </div>
+                        <div className="p-3 rounded-2xl bg-cream border border-copper-soft/60">
+                          <span className="text-[10px] uppercase font-bold text-muted block mb-1">Top Priority Gap:</span>
+                          <span className="text-xs font-bold text-copper-strong block">{cohort.topSkillGap}</span>
+                        </div>
+                        <div className="p-3 rounded-2xl bg-paper border border-line">
+                          <span className="text-[10px] uppercase font-bold text-muted block mb-1">Priority Action:</span>
+                          <span className="text-xs text-navy font-medium block">{cohort.priorityIntervention}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: READINESS ANALYTICS */}
+            {activeTab === 'readiness' && (
+              <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-3xl border border-line shadow-card">
+                  <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Curriculum Alignment</span>
+                  <h2 className="text-2xl font-bold text-navy font-display mt-1">Competency Readiness Heatmap</h2>
+                  <p className="text-xs text-muted mt-1">Heatmap analysis correlating coursework completion with real diagnostic verification scores.</p>
                 </div>
 
-                <div className="bg-surface backdrop-blur-md border border-line rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                  <div className="p-8 space-y-8">
-                    
-                    {/* Pathway 1 */}
-                    <div className="group">
-                      <div className="flex flex-col md:flex-row justify-between md:items-end mb-3 gap-2">
-                        <div>
-                          <h3 className="font-bold text-ink text-lg group-hover:text-cyan-300 transition-colors">Data Analyst</h3>
-                          <p className="text-sm text-muted">420 students tracking this pathway</p>
+                <div className="bg-surface rounded-3xl p-6 sm:p-8 border border-line shadow-card space-y-6">
+                  <div className="space-y-4">
+                    {[
+                      { skill: 'Relational SQL & Query Foundations', level: 94, status: 'Strong Curriculum Alignment' },
+                      { skill: 'Python Data Structures & Pandas', level: 88, status: 'On Target' },
+                      { skill: 'Advanced Window Functions (PARTITION BY)', level: 58, status: 'Intervention Required (42% Gap)' },
+                      { skill: 'A/B Testing & Causal Inference', level: 68, status: 'Moderate Alignment Gap' },
+                      { skill: 'Executive Dashboard Storytelling', level: 76, status: 'On Target' },
+                    ].map((item, i) => (
+                      <div key={i} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-navy">{item.skill}</span>
+                          <span className={item.level < 70 ? 'text-amber-700' : 'text-green-700'}>{item.level}% Readiness ({item.status})</span>
                         </div>
-                        <button className="text-xs font-semibold px-4 py-1.5 bg-surface hover:bg-surface-strong border border-line rounded-lg text-ink transition-colors flex items-center gap-2">
-                          View Student List <ChevronRight className="w-3 h-3"/>
-                        </button>
-                      </div>
-                      <div className="flex h-10 rounded-xl overflow-hidden shadow-inner cursor-pointer hover:ring-2 hover:ring-white/20 transition-all">
-                        <div className="bg-gradient-to-r from-green-600 to-green-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '45%' }} title="Ready (189 students)">45%</div>
-                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '35%' }} title="On Track (147 students)">35%</div>
-                        <div className="bg-gradient-to-r from-rose-600 to-rose-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '20%' }} title="At Risk (84 students)">20%</div>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span className="text-muted">Top missing skill: <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">Advanced SQL</span></span>
-                        <span className="text-muted px-2">|</span>
-                        <span className="text-muted">Strongest skill: <span className="text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">Python (Pandas)</span></span>
-                      </div>
-                    </div>
-
-                    {/* Pathway 2 */}
-                    <div className="group">
-                      <div className="flex flex-col md:flex-row justify-between md:items-end mb-3 gap-2">
-                        <div>
-                          <h3 className="font-bold text-ink text-lg group-hover:text-cyan-300 transition-colors">Frontend Developer</h3>
-                          <p className="text-sm text-muted">380 students tracking this pathway</p>
+                        <div className="w-full h-3 rounded-full bg-paper overflow-hidden border border-line">
+                          <div
+                            className={`h-full transition-all ${
+                              item.level < 70 ? 'bg-amber-500' : 'bg-green-600'
+                            }`}
+                            style={{ width: `${item.level}%` }}
+                          />
                         </div>
-                        <button className="text-xs font-semibold px-4 py-1.5 bg-surface hover:bg-surface-strong border border-line rounded-lg text-ink transition-colors flex items-center gap-2">
-                          View Student List <ChevronRight className="w-3 h-3"/>
-                        </button>
                       </div>
-                      <div className="flex h-10 rounded-xl overflow-hidden shadow-inner cursor-pointer hover:ring-2 hover:ring-white/20 transition-all">
-                        <div className="bg-gradient-to-r from-green-600 to-green-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '60%' }} title="Ready (228 students)">60%</div>
-                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '25%' }} title="On Track (95 students)">25%</div>
-                        <div className="bg-gradient-to-r from-rose-600 to-rose-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '15%' }} title="At Risk (57 students)">15%</div>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span className="text-muted">Top missing skill: <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">TypeScript Generics</span></span>
-                        <span className="text-muted px-2">|</span>
-                        <span className="text-muted">Strongest skill: <span className="text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">React Basics</span></span>
-                      </div>
-                    </div>
-
-                    {/* Pathway 3 */}
-                    <div className="group">
-                      <div className="flex flex-col md:flex-row justify-between md:items-end mb-3 gap-2">
-                        <div>
-                          <h3 className="font-bold text-ink text-lg group-hover:text-cyan-300 transition-colors">Cloud Architect</h3>
-                          <p className="text-sm text-muted">250 students tracking this pathway</p>
-                        </div>
-                        <button className="text-xs font-semibold px-4 py-1.5 bg-surface hover:bg-surface-strong border border-line rounded-lg text-ink transition-colors flex items-center gap-2">
-                          View Student List <ChevronRight className="w-3 h-3"/>
-                        </button>
-                      </div>
-                      <div className="flex h-10 rounded-xl overflow-hidden shadow-inner cursor-pointer hover:ring-2 hover:ring-white/20 transition-all">
-                        <div className="bg-gradient-to-r from-green-600 to-green-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '35%' }} title="Ready (88 students)">35%</div>
-                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '45%' }} title="On Track (112 students)">45%</div>
-                        <div className="bg-gradient-to-r from-rose-600 to-rose-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '20%' }} title="At Risk (50 students)">20%</div>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span className="text-muted">Top missing skill: <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">Terraform / IaC</span></span>
-                        <span className="text-muted px-2">|</span>
-                        <span className="text-muted">Strongest skill: <span className="text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">AWS EC2 Basics</span></span>
-                      </div>
-                    </div>
-
-                    {/* Pathway 4 */}
-                    <div className="group">
-                      <div className="flex flex-col md:flex-row justify-between md:items-end mb-3 gap-2">
-                        <div>
-                          <h3 className="font-bold text-ink text-lg group-hover:text-cyan-300 transition-colors">UX Designer</h3>
-                          <p className="text-sm text-muted">200 students tracking this pathway</p>
-                        </div>
-                        <button className="text-xs font-semibold px-4 py-1.5 bg-surface hover:bg-surface-strong border border-line rounded-lg text-ink transition-colors flex items-center gap-2">
-                          View Student List <ChevronRight className="w-3 h-3"/>
-                        </button>
-                      </div>
-                      <div className="flex h-10 rounded-xl overflow-hidden shadow-inner cursor-pointer hover:ring-2 hover:ring-white/20 transition-all">
-                        <div className="bg-gradient-to-r from-green-600 to-green-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '70%' }} title="Ready (140 students)">70%</div>
-                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '20%' }} title="On Track (40 students)">20%</div>
-                        <div className="bg-gradient-to-r from-rose-600 to-rose-500 h-full flex items-center justify-center text-xs font-bold text-ink hover:brightness-110 transition-all" style={{ width: '10%' }} title="At Risk (20 students)">10%</div>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span className="text-muted">Top missing skill: <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">Design Systems</span></span>
-                        <span className="text-muted px-2">|</span>
-                        <span className="text-muted">Strongest skill: <span className="text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">Figma Prototyping</span></span>
-                      </div>
-                    </div>
-
-                  </div>
-                  
-                  <div className="border-t border-navy-line bg-paper p-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="flex justify-center gap-6 text-xs font-bold text-muted">
-                      <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div> Placement Ready</span>
-                      <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> On Track</span>
-                      <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> At Risk (Missing critical evidence)</span>
-                    </div>
-                    
-                    <button onClick={() => setActiveTab('gaps')} className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-ink rounded-xl text-sm font-bold shadow-md shadow-cyan-500/25 transition-all flex items-center gap-2">
-                      <Zap className="w-4 h-4" /> Plan Interventions
-                    </button>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
+            {/* TAB 4: SKILL-GAP TRENDS */}
             {activeTab === 'gaps' && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <h1 className="text-3xl font-bold text-ink mb-2">Intervention Planner</h1>
-                  <p className="text-muted">Identify critical skill gaps and deploy missions to your cohort.</p>
+              <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-3xl border border-line shadow-card">
+                  <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Industry Demand Correlation</span>
+                  <h2 className="text-2xl font-bold text-navy font-display mt-1">Systemic Skill-Gap Trends</h2>
+                  <p className="text-xs text-muted mt-1">Priority gaps identified through employer rejections and verified assessment checkpoints.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {INITIAL_SKILL_GAPS.map((gap) => (
+                    <div key={gap.skillId} className="bg-surface rounded-3xl p-6 border border-line shadow-card space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                            {gap.severity} Severity Gap
+                          </span>
+                          <h3 className="text-lg font-bold text-navy font-display mt-1">{gap.skillName}</h3>
+                          <p className="text-xs text-muted">{gap.studentsAffectedCount} students affected ({gap.percentageAffected}% of cohort)</p>
+                        </div>
+                        <span className="text-xs font-extrabold text-navy px-3 py-1 rounded-xl bg-paper border border-line">
+                          Employer Demand Index: {gap.employerDemandIndex}/100
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-cream border border-copper-soft/60 text-xs">
+                        <span className="font-bold text-navy block text-[11px]">Recommended Academic Action:</span>
+                        <p className="text-body leading-relaxed mt-0.5">{gap.recommendedAction}</p>
+                      </div>
+
+                      <div className="pt-2 border-t border-line/60 flex justify-end">
+                        <button
+                          onClick={() => {
+                            setInterventionTitle(gap.skillName + ' Workshop');
+                            setDeployModalOpen(true);
+                          }}
+                          className="px-4 py-2 rounded-xl bg-navy hover:bg-copper text-cream font-bold text-xs transition-colors flex items-center gap-1.5"
+                        >
+                          <Zap className="w-3.5 h-3.5" /> Deploy Targeted Workshop
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: INTERVENTIONS */}
+            {activeTab === 'interventions' && (
+              <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-3xl border border-line shadow-card flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Targeted Remediation</span>
+                    <h2 className="text-2xl font-bold text-navy font-display mt-1">Intervention Planner</h2>
+                    <p className="text-xs text-muted mt-1">Deploy workshops, mentor review sprints, and diagnostic refreshers.</p>
+                  </div>
+                  <button
+                    onClick={() => setDeployModalOpen(true)}
+                    className="px-4 py-2.5 rounded-xl bg-navy hover:bg-copper text-cream font-bold text-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Create New Intervention
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {interventions.map((interv) => (
+                    <div key={interv.id} className="bg-surface rounded-3xl p-6 border border-line shadow-card space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <span className="text-xs font-bold text-muted">{interv.targetCohortName}</span>
+                          <h3 className="text-lg font-bold text-navy font-display mt-0.5">{interv.title}</h3>
+                          <p className="text-xs text-muted">Deadline: {interv.deadline} · {interv.enrolledStudentsCount} Students Enrolled</p>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-900 border border-green-300">
+                          +{interv.projectedReadinessUplift}% Projected Uplift
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-muted">Student Completion Progress</span>
+                          <span className="text-navy">{interv.completionRate}%</span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-paper overflow-hidden border border-line">
+                          <div className="h-full bg-green-600 transition-all" style={{ width: `${interv.completionRate}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: REPORTS & SETTINGS */}
+            {activeTab === 'reports' && (
+              <div className="space-y-6">
+                <div className="bg-surface p-6 rounded-3xl border border-line shadow-card space-y-2">
+                  <span className="text-xs font-bold text-green-800 uppercase tracking-wider">Institutional Reporting</span>
+                  <h2 className="text-2xl font-bold text-navy font-display">Aggregate Reports & Accreditation Exports</h2>
+                  <p className="text-xs text-muted leading-relaxed">
+                    Generate privacy-safe aggregate accreditation reports demonstrating student competency evidence and industry readiness benchmarks.
+                  </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* Skill Gaps List */}
-                  <div className="bg-surface backdrop-blur-md border border-line rounded-3xl p-6 shadow-md h-[500px] flex flex-col">
-                    <h2 className="font-bold text-ink text-lg mb-4">Critical Skill Gaps</h2>
-                    <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-                      <div className="p-4 bg-surface border border-cyan-500/50 rounded-xl cursor-pointer hover:bg-surface-strong/20 transition-colors">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-bold text-ink">Advanced SQL (Window Functions)</h3>
-                          <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-full">High Priority</span>
-                        </div>
-                        <p className="text-sm text-muted">Failed by 68% of Data Analyst tracking cohort. Required for 42 local opportunities.</p>
-                      </div>
-                      
-                      <div className="p-4 bg-surface border border-line rounded-xl cursor-pointer hover:bg-surface-strong transition-colors opacity-70">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-bold text-ink">React Performance Optimization</h3>
-                          <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold rounded-full">Med Priority</span>
-                        </div>
-                        <p className="text-sm text-muted">Failed by 41% of Frontend Developer tracking cohort.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Deploy Intervention */}
-                  <div className="bg-surface backdrop-blur-md border border-line rounded-3xl p-6 shadow-md h-[500px] flex flex-col">
-                    <h2 className="font-bold text-ink text-lg mb-6">Deploy Intervention: Advanced SQL</h2>
-                    <div className="space-y-6 flex-1">
-                      <div>
-                        <label className="block text-sm font-medium text-muted mb-2">Mission Type</label>
-                        <select className="w-full bg-surface border border-line text-ink rounded-xl px-4 py-3 outline-none focus:border-cyan-500">
-                          <option>Interactive Diagnostic (Auto-graded)</option>
-                          <option>Project Submission (Manual Review)</option>
-                          <option>External Resource (Read/Watch)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-muted mb-2">Mission Brief (Sent to Cohort)</label>
-                        <textarea 
-                          className="w-full bg-surface border border-line rounded-xl p-3 text-muted text-sm focus:border-cyan-500 outline-none h-32"
-                          value="We noticed a gap in Window Functions across the cohort. Please complete this interactive diagnostic to boost your evidence score and unlock pending employer matches."
-                          readOnly
-                        ></textarea>
-                      </div>
-                    </div>
-                    <button className="w-full py-3 bg-amber-500 text-ink rounded-xl font-bold shadow-md hover:bg-amber-400 transition-colors mt-auto flex justify-center items-center gap-2">
-                      <Target className="w-5 h-5" /> Deploy Mission to 285 Students
+                  <div className="bg-surface rounded-3xl p-6 sm:p-8 border border-line shadow-card space-y-4">
+                    <h3 className="font-bold text-sm text-navy font-display">Accreditation Report (2025/2026)</h3>
+                    <p className="text-xs text-body leading-relaxed">
+                      Comprehensive summary of cohort diagnostic participation, verified competency distributions, and curriculum alignment scores.
+                    </p>
+                    <button
+                      onClick={() => alert('Aggregate accreditation PDF exported successfully.')}
+                      className="px-4 py-2.5 rounded-xl bg-navy hover:bg-navy-soft text-cream font-bold text-xs flex items-center gap-2"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Export Accreditation PDF
                     </button>
                   </div>
+
+                  <div className="bg-surface rounded-3xl p-6 sm:p-8 border border-line shadow-card space-y-4">
+                    <h3 className="font-bold text-sm text-navy font-display">Privacy & Consent Protocols</h3>
+                    <p className="text-xs text-body leading-relaxed">
+                      All institutional data is processed under k-anonymity privacy rules. Individual student records and private draft repositories are excluded from institutional exports.
+                    </p>
+                    <div className="flex items-center gap-2 text-xs font-bold text-green-700">
+                      <ShieldCheck className="w-4 h-4" /> k-Anonymity Verified (v2.4)
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'demand' && (
-              <div className="space-y-6 animate-fade-in">
-                <div>
-                  <h1 className="text-3xl font-bold text-ink mb-2">Employer Demand</h1>
-                  <p className="text-muted">Live trends on what companies in your network are looking for.</p>
-                </div>
-                <div className="bg-surface border border-line rounded-2xl p-12 text-center shadow-sm">
-                  <div className="w-16 h-16 bg-surface text-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-300">
-                    <TrendingUp className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-bold text-lg text-ink mb-2">Demand Analytics Syncing</h3>
-                  <p className="text-muted max-w-sm mx-auto mb-6">Connecting to employer API to pull live market requirement data...</p>
-                </div>
-              </div>
-            )}
           </div>
         </main>
       </div>
+
+      {/* DEPLOY INTERVENTION MODAL */}
+      {deployModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface w-full max-w-xl rounded-3xl shadow-2xl border border-line overflow-hidden animate-slide-up">
+            <div className="p-6 bg-navy text-cream flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-green-300 block">
+                  Academic Intervention Tool
+                </span>
+                <h3 className="text-lg font-bold font-display text-cream mt-0.5">
+                  Deploy Targeted Curriculum Module
+                </h3>
+              </div>
+              <button
+                onClick={() => setDeployModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-ice hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleDeployIntervention} className="p-6 sm:p-8 space-y-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-muted block mb-1">Target Academic Cohort</label>
+                <select
+                  value={selectedCohortId}
+                  onChange={(e) => setSelectedCohortId(e.target.value)}
+                  className="w-full p-2.5 bg-paper rounded-xl border border-line text-xs font-semibold text-navy outline-none"
+                >
+                  {cohorts.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.totalStudents} students)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase text-muted block mb-1">Intervention Module Title</label>
+                <input
+                  type="text"
+                  value={interventionTitle}
+                  onChange={(e) => setInterventionTitle(e.target.value)}
+                  className="w-full p-2.5 bg-paper rounded-xl border border-line text-xs text-navy font-semibold outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase text-muted block mb-1">Completion Deadline</label>
+                <input
+                  type="date"
+                  value={interventionDeadline}
+                  onChange={(e) => setInterventionDeadline(e.target.value)}
+                  className="w-full p-2.5 bg-paper rounded-xl border border-line text-xs text-navy outline-none"
+                  required
+                />
+              </div>
+
+              <div className="p-4 rounded-2xl bg-cream border border-copper-soft/60 space-y-1 text-xs">
+                <span className="font-bold text-navy block text-[11px]">Estimated Impact:</span>
+                <p className="text-body text-[11px]">
+                  Projected <strong>+15% readiness uplift</strong> for enrolled cohort upon diagnostic lab completion.
+                </p>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeployModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-xl bg-navy hover:bg-copper text-cream font-bold text-xs transition-colors"
+                >
+                  Deploy to Students
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
