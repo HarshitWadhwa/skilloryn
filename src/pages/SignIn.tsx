@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -92,31 +92,37 @@ const WORKSPACES: Record<WorkspaceType, WorkspaceConfig> = {
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const queryWorkspace = searchParams.get('workspace') as WorkspaceType | null;
-  const initialWorkspace: WorkspaceType =
+  const selectedWorkspace: WorkspaceType =
     queryWorkspace && WORKSPACES[queryWorkspace] ? queryWorkspace : 'student';
 
-  const [step, setStep] = useState<1 | 2>(queryWorkspace ? 2 : 1);
-  const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceType>(initialWorkspace);
-  const [email, setEmail] = useState<string>(WORKSPACES[initialWorkspace].demoEmail);
+  const queryStep = searchParams.get('step');
+  const step: 1 | 2 = queryStep === '2' || (queryWorkspace && queryStep !== '1') ? 2 : 1;
+
+  const [email, setEmail] = useState<string>(WORKSPACES[selectedWorkspace].demoEmail);
   const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [demoLoaded, setDemoLoaded] = useState<boolean>(false);
 
+  // Sync email when workspace changes
+  useEffect(() => {
+    setEmail(WORKSPACES[selectedWorkspace].demoEmail);
+  }, [selectedWorkspace]);
+
   const handleSelectWorkspace = (ws: WorkspaceType) => {
-    setSelectedWorkspace(ws);
-    setEmail(WORKSPACES[ws].demoEmail);
-    setPassword('password123');
-    setStep(2);
+    setSearchParams({ workspace: ws, step: '2' });
   };
 
   const handleQuickSwitchWorkspace = (ws: WorkspaceType) => {
-    setSelectedWorkspace(ws);
-    setEmail(WORKSPACES[ws].demoEmail);
+    setSearchParams({ workspace: ws, step: '2' });
+  };
+
+  const handleBackToStep1 = () => {
+    setSearchParams({});
   };
 
   const handleUseDemoAccount = () => {
@@ -159,7 +165,7 @@ export default function SignIn() {
           {/* Stepper Pill */}
           <div className="hidden sm:flex items-center gap-3 px-5 py-2 rounded-full bg-surface border border-line shadow-sm text-sm font-semibold">
             <button
-              onClick={() => setStep(1)}
+              onClick={handleBackToStep1}
               className={`flex items-center gap-2 transition-colors ${
                 step === 1 ? 'text-copper font-bold' : 'text-muted hover:text-navy'
               }`}
@@ -289,7 +295,7 @@ export default function SignIn() {
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={handleBackToStep1}
                     className="inline-flex items-center gap-2 text-sm font-bold text-muted hover:text-navy transition-colors px-3 py-1.5 rounded-xl hover:bg-surface"
                   >
                     <ArrowLeft className="w-4 h-4" /> Switch Workspace

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   GraduationCap, Users, BarChart3, Target, Zap, Settings,
   CheckCircle2, ArrowLeft, ChevronRight, Download,
@@ -12,8 +12,26 @@ type InstitutionTab = 'overview' | 'cohorts' | 'readiness' | 'gaps' | 'intervent
 
 export default function InstitutionDashboard() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<InstitutionTab>('overview');
+  // URL-driven Tab Navigation (for browser/phone back-button support)
+  const tabParam = searchParams.get('tab') as InstitutionTab | null;
+  const activeTab: InstitutionTab =
+    tabParam && ['overview', 'cohorts', 'readiness', 'gaps', 'interventions', 'reports'].includes(tabParam)
+      ? tabParam
+      : 'overview';
+
+  const setActiveTab = useCallback(
+    (tab: InstitutionTab) => {
+      if (tab === 'overview') {
+        setSearchParams({});
+      } else {
+        setSearchParams({ tab });
+      }
+    },
+    [setSearchParams]
+  );
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [cohorts] = useState<CohortItem[]>(() => {
@@ -30,6 +48,41 @@ export default function InstitutionDashboard() {
   const [interventionTitle, setInterventionTitle] = useState('SQL Window Functions & Analytical Framing Lab');
   const [interventionDeadline, setInterventionDeadline] = useState('2026-09-20');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Popstate listener for deploy modal and mobile drawer
+  useEffect(() => {
+    if (deployModalOpen) {
+      window.history.pushState({ modal: 'deploy' }, '');
+      const onPopState = () => {
+        setDeployModalOpen(false);
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    }
+  }, [deployModalOpen]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      window.history.pushState({ modal: 'mobileMenu' }, '');
+      const onPopState = () => {
+        setMobileMenuOpen(false);
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    }
+  }, [mobileMenuOpen]);
+
+  const handleCloseDeployModal = () => {
+    if (window.history.state?.modal === 'deploy') {
+      window.history.back();
+    } else {
+      setDeployModalOpen(false);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('skilloryn_institution_interventions', JSON.stringify(interventions));
@@ -519,7 +572,7 @@ export default function InstitutionDashboard() {
                 </h3>
               </div>
               <button
-                onClick={() => setDeployModalOpen(false)}
+                onClick={handleCloseDeployModal}
                 className="p-1.5 rounded-lg hover:bg-white/10 text-ice hover:text-white"
               >
                 <X className="w-5 h-5" />
@@ -574,7 +627,7 @@ export default function InstitutionDashboard() {
               <div className="pt-2 flex justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setDeployModalOpen(false)}
+                  onClick={handleCloseDeployModal}
                   className="px-5 py-2.5 rounded-xl border text-sm font-bold"
                 >
                   Cancel

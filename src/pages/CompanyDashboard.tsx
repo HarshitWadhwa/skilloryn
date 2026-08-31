@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   Users, Briefcase, FileCheck, MessageSquare, Building2,
   CheckCircle2, Search, ArrowRight, ArrowLeft,
@@ -13,9 +13,40 @@ type CompanyTab = 'overview' | 'opportunities' | 'candidates' | 'feedback' | 'me
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<CompanyTab>('overview');
+  // URL-driven Tab Navigation (for browser/phone back-button support)
+  const tabParam = searchParams.get('tab') as CompanyTab | null;
+  const activeTab: CompanyTab =
+    tabParam && ['overview', 'opportunities', 'candidates', 'feedback', 'messages', 'profile'].includes(tabParam)
+      ? tabParam
+      : 'overview';
+
+  const setActiveTab = useCallback(
+    (tab: CompanyTab) => {
+      if (tab === 'overview') {
+        setSearchParams({});
+      } else {
+        setSearchParams({ tab });
+      }
+    },
+    [setSearchParams]
+  );
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      window.history.pushState({ modal: 'mobileMenu' }, '');
+      const onPopState = () => {
+        setMobileMenuOpen(false);
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    }
+  }, [mobileMenuOpen]);
 
   const [candidates, setCandidates] = useState<CandidateReviewItem[]>(() => {
     const saved = localStorage.getItem('skilloryn_company_candidates');

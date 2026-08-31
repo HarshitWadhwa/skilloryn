@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Award, Compass, Briefcase, FileText,
   Bot, MessageSquare, Shield, Flame, Zap,
@@ -28,9 +28,26 @@ type StudentTab =
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Navigation State
-  const [activeTab, setActiveTab] = useState<StudentTab>('overview');
+  // URL-driven Tab Navigation (enables smooth browser & phone back-button support)
+  const tabParam = searchParams.get('tab') as StudentTab | null;
+  const activeTab: StudentTab =
+    tabParam && ['overview', 'passport', 'roadmap', 'opportunities', 'applications', 'coach', 'messages', 'profile'].includes(tabParam)
+      ? tabParam
+      : 'overview';
+
+  const setActiveTab = useCallback(
+    (tab: StudentTab) => {
+      if (tab === 'overview') {
+        setSearchParams({});
+      } else {
+        setSearchParams({ tab });
+      }
+    },
+    [setSearchParams]
+  );
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Persistent Gamification & Progress State
@@ -189,11 +206,46 @@ export default function StudentDashboard() {
     }
   };
 
+  // Mobile Back Button Support for Diagnostic Modal & Mobile Drawer
+  useEffect(() => {
+    if (diagnosticOpen) {
+      window.history.pushState({ modal: 'diagnostic' }, '');
+      const onPopState = () => {
+        setDiagnosticOpen(false);
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    }
+  }, [diagnosticOpen]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      window.history.pushState({ modal: 'mobileMenu' }, '');
+      const onPopState = () => {
+        setMobileMenuOpen(false);
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    }
+  }, [mobileMenuOpen]);
+
+  const handleCloseDiagnostic = () => {
+    if (window.history.state?.modal === 'diagnostic') {
+      window.history.back();
+    } else {
+      setDiagnosticOpen(false);
+    }
+  };
+
   const handleResetQuiz = () => {
     setCurrentQuestionIndex(0);
     setQuizScore(0);
     setQuizFinished(false);
-    setDiagnosticOpen(false);
+    handleCloseDiagnostic();
   };
 
   const handleToggleSaveOpp = (id: string) => {
