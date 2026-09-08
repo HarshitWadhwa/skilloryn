@@ -8,6 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
+    "security-cli": "node scripts/password_security_cli.mjs",
+    "security-python": "python password_analyzer.py",
+    "security-python-test": "python test_password_analyzer.py",
     "preview": "vite preview"
   },
   "dependencies": {

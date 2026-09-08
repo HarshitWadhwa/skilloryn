@@ -461,7 +461,17 @@ export default function SignIn() {
                       </button>
                     </form>
 
-                    <p className="text-xs text-muted text-center pt-2">
+                    <div className="pt-2 border-t border-line/60 flex items-center justify-between text-xs">
+                      <span className="text-muted">Need a stronger password?</span>
+                      <Link
+                        to="/security-lab"
+                        className="text-copper hover:text-copper-strong font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> Security Lab & Analyzer
+                      </Link>
+                    </div>
+
+                    <p className="text-xs text-muted text-center pt-1">
                       Consent-first privacy & end-to-end evidence ledger security.
                     </p>
                   </div>

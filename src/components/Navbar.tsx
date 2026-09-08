@@ -27,6 +27,10 @@ export default function Navbar() {
             <a href="#passport" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Skill Passport</a>
             <a href="#roadmap" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Roadmap</a>
             <a href="#opportunities" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Opportunities</a>
+            <Link to="/security-lab" className="text-copper font-semibold hover:text-copper-strong transition-all flex items-center gap-1.5">
+              <span>Security Lab</span>
+              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-copper-soft/20 text-copper-strong border border-copper-soft/40">New</span>
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -57,6 +61,7 @@ export default function Navbar() {
           <a href="#passport" className="block px-3 py-2 text-body font-medium">Skill Passport</a>
           <a href="#roadmap" className="block px-3 py-2 text-body font-medium">Roadmap</a>
           <a href="#opportunities" className="block px-3 py-2 text-body font-medium">Opportunities</a>
+          <Link to="/security-lab" className="block px-3 py-2 text-copper font-bold">Security & Cryptography Lab</Link>
           <div className="pt-4 flex flex-col gap-2">
             <Link to="/sign-in" className="w-full text-center text-ink font-medium py-2 border border-slate-300 rounded-lg block hover:bg-surface-strong">Log in</Link>
             <Link to="/sign-in" className="w-full text-center bg-skilloryn-600 text-ink font-medium py-2 rounded-lg block shadow-[0_0_15px_rgba(99,102,241,0.5)]">Get Started</Link>

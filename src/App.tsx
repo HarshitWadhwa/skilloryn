@@ -7,6 +7,7 @@ import CompanyDashboard from './pages/CompanyDashboard';
 import InstitutionDashboard from './pages/InstitutionDashboard';
 import PassportPage from './pages/PassportPage';
 import SkillDetailPage from './pages/SkillDetailPage';
+import PasswordSecurityLab from './pages/PasswordSecurityLab';
 
 function App() {
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/institution" element={<InstitutionDashboard />} />
             <Route path="/passport/:slug" element={<PassportPage />} />
             <Route path="/passport/:slug/skills/:skillId" element={<SkillDetailPage />} />
+            <Route path="/security-lab" element={<PasswordSecurityLab />} />
           </Routes>
         </div>
       </div>
