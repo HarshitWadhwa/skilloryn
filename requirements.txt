@@ -1,0 +1,15 @@
+# Password Strength Analyzer & Cryptography Lab
+# Requirements:
+# Python 3.8 or higher
+# Standard library only (no external pip dependencies needed):
+# - sqlite3
+# - hashlib
+# - secrets
+# - hmac
+# - math
+# - re
+# - time
+# - os
+# - sys
+# - argparse
+# - unittest
