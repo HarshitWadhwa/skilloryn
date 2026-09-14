@@ -54,12 +54,12 @@ export default function Navbar() {
           animate={{ opacity: 1, height: 'auto' }}
           className="md:hidden bg-surface/90 backdrop-blur-xl border-b border-line px-4 pt-2 pb-4 space-y-3 shadow-xl"
         >
-          <a href="#passport" className="block px-3 py-2 text-body font-medium">Skill Passport</a>
-          <a href="#roadmap" className="block px-3 py-2 text-body font-medium">Roadmap</a>
-          <a href="#opportunities" className="block px-3 py-2 text-body font-medium">Opportunities</a>
-          <div className="pt-4 flex flex-col gap-2">
-            <Link to="/sign-in" className="w-full text-center text-ink font-medium py-2 border border-slate-300 rounded-lg block hover:bg-surface-strong">Log in</Link>
-            <Link to="/sign-in" className="w-full text-center bg-skilloryn-600 text-ink font-medium py-2 rounded-lg block shadow-[0_0_15px_rgba(99,102,241,0.5)]">Get Started</Link>
+          <a href="#passport" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Skill Passport</a>
+          <a href="#roadmap" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Roadmap</a>
+          <a href="#opportunities" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Opportunities</a>
+          <div className="pt-3 flex flex-col gap-2">
+            <Link to="/sign-in" onClick={() => setIsOpen(false)} className="w-full text-center text-ink font-medium py-2.5 border border-slate-300 rounded-lg block hover:bg-surface-strong">Log in</Link>
+            <Link to="/sign-in" onClick={() => setIsOpen(false)} className="w-full text-center bg-skilloryn-600 text-ink font-medium py-2.5 rounded-lg block shadow-[0_0_15px_rgba(99,102,241,0.5)]">Get Started</Link>
           </div>
         </motion.div>
       )}

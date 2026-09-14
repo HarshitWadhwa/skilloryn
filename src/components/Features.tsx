@@ -43,17 +43,17 @@ const itemVariants = {
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 relative z-10">
+    <section id="features" className="py-16 sm:py-24 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
         >
-          <h2 className="text-3xl lg:text-4xl font-bold text-ink mb-4 drop-shadow-md">A complete workflow for career readiness</h2>
-          <p className="text-lg text-muted">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink mb-3 sm:mb-4 drop-shadow-md">A complete workflow for career readiness</h2>
+          <p className="text-base sm:text-lg text-muted">
             A continuous improvement loop that takes you from assessing skill gaps to preparing opportunity applications, backed by visible evidence.
           </p>
         </motion.div>
@@ -63,13 +63,13 @@ export default function Features() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
         >
           {features.map((feature, idx) => (
             <motion.div 
               key={idx} 
               variants={itemVariants}
-              className="bg-surface backdrop-blur-xl rounded-3xl p-8 border border-line shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(99,102,241,0.2)] hover:border-slate-300 hover:-translate-y-2 transition-all duration-300 group"
+              className="bg-surface backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-line shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(99,102,241,0.2)] hover:border-slate-300 hover:-translate-y-2 transition-all duration-300 group"
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 shadow-inner ${feature.color}`}>
                 <feature.icon className="w-7 h-7" />
