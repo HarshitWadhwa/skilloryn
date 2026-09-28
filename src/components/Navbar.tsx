@@ -2,6 +2,7 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import logoImg from '../assets/skilloryn-logo.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,11 +16,13 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
-          {/* Clean Brand Text */}
-          <Link to="/" className="flex items-center group">
-            <span className="font-black text-2xl text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
-              Skilloryn
-            </span>
+          {/* Brand Logo with Live Preview */}
+          <Link to="/" className="flex items-center gap-2 group py-1">
+            <img
+              src={logoImg}
+              alt="SkillOryn"
+              className="h-8 sm:h-9 md:h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </Link>
 
           {/* Clean Nav Links (No icon/badge clutter) */}

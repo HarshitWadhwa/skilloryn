@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import logoImg from '../assets/skilloryn-logo.png';
 import {
   Users, Briefcase, FileCheck, MessageSquare, Building2,
   CheckCircle2, Search, ArrowRight, ArrowLeft,
@@ -192,18 +193,17 @@ export default function CompanyDashboard() {
 
       {/* SIDEBAR */}
       <aside className="w-64 bg-white border-r border-slate-200/90 hidden md:flex flex-col z-20 text-slate-800 shrink-0">
-        <div className="h-16 flex items-center px-5 border-b border-slate-100 justify-between">
+        <div className="h-16 flex items-center px-4 border-b border-slate-100 justify-between">
           <div
-            className="flex flex-col cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group"
             onClick={() => navigate('/choose-workspace')}
             title="Switch Workspace"
           >
-            <span className="font-black text-xl text-slate-900 tracking-tight block leading-none">
-              Skilloryn
-            </span>
-            <span className="text-[10px] text-indigo-600 font-bold tracking-wider uppercase block mt-1">
-              Company Workspace
-            </span>
+            <img
+              src={logoImg}
+              alt="SkillOryn"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </div>
         </div>
 

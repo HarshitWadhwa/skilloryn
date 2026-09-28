@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Building2, GraduationCap, ArrowRight, Sparkles, CheckCircle2, ArrowLeft, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
+import logoImg from '../assets/skilloryn-logo.png';
 
 const workspaces = [
   {
@@ -87,10 +88,12 @@ export default function WorkspaceSelector() {
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <span className="font-black text-2xl text-slate-900 tracking-tight hover:text-indigo-600 transition-colors">
-              Skilloryn
-            </span>
+          <Link to="/" className="flex items-center group py-1">
+            <img
+              src={logoImg}
+              alt="SkillOryn"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </Link>
 
           <Link

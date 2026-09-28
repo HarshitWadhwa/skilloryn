@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import logoImg from '../assets/skilloryn-logo.png';
 import {
   User, Building2, GraduationCap, ArrowRight, ArrowLeft,
   CheckCircle2, Sparkles, ShieldCheck, Lock, Mail, Eye, EyeOff,
@@ -147,10 +148,12 @@ export default function SignIn() {
       {/* Header */}
       <header className="relative z-10 border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <span className="font-black text-2xl text-slate-900 tracking-tight hover:text-indigo-600 transition-colors">
-              Skilloryn
-            </span>
+          <Link to="/" className="flex items-center group py-1">
+            <img
+              src={logoImg}
+              alt="SkillOryn"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </Link>
 
           {/* Stepper Pill */}
