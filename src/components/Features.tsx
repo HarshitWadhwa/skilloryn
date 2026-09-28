@@ -1,90 +1,94 @@
-import { Award, Compass, Briefcase, ChevronRight } from 'lucide-react';
+import { Award, Compass, Briefcase, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const features = [
   {
-    title: 'Skill Passport',
-    description: 'Combine skills with visible provenance, selected project evidence, and assessment context instead of just a static resume.',
+    title: 'Verified Skill Passport',
+    tag: 'Proof Credential',
+    description: 'A physical-metaphor digital credential uniting verified diagnostics, peer-reviewed GitHub repositories, and calibrated timestamps into a portable identity.',
     icon: Award,
-    color: 'bg-blue-500/20 text-blue-300',
-    link: 'View Passport'
+    iconColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    linkText: 'Inspect Skill Passport',
+    href: '/passport',
   },
   {
-    title: 'Personalised Roadmap',
-    description: 'Convert priority skill gaps into daily missions, diagnostics, resources, and a structured next-best action to keep learning actionable.',
+    title: 'Adaptive Learning Roadmap',
+    tag: 'Progress Engine',
+    description: 'Transform priority skill gaps into 2-minute diagnostic labs, structured missions, and evidence checkpoints with persistent streak tracking.',
     icon: Compass,
-    color: 'bg-teal-500/20 text-teal-300',
-    link: 'Explore Roadmap'
+    iconColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    linkText: 'Explore Roadmap',
+    href: '/student?tab=roadmap',
   },
   {
-    title: 'Curated Opportunities',
-    description: 'Search for opportunities with explainable relevance. Understand why a role is a fit for your skills, rather than relying on a matching number.',
+    title: 'Curated Tech Internships',
+    tag: 'Algorithmic Match',
+    description: 'Explore hiring openings with transparent rationale. Understand precisely which verified skills match and what steps remain before fast-track submission.',
     icon: Briefcase,
-    color: 'bg-purple-500/20 text-purple-300',
-    link: 'Find Roles'
-  }
+    iconColor: 'bg-purple-50 text-purple-700 border-purple-200',
+    linkText: 'Browse Openings',
+    href: '/student?tab=internships',
+  },
 ];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-};
 
 export default function Features() {
   return (
-    <section id="features" className="py-16 sm:py-24 relative z-10">
+    <section id="features" className="py-16 sm:py-24 bg-white relative z-10 border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
-        >
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ink mb-3 sm:mb-4 drop-shadow-md">A complete workflow for career readiness</h2>
-          <p className="text-base sm:text-lg text-muted">
-            A continuous improvement loop that takes you from assessing skill gaps to preparing opportunity applications, backed by visible evidence.
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200/60">
+            <Zap className="w-3.5 h-3.5 text-indigo-600" />
+            <span>End-to-End Readiness Architecture</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            A complete workflow for career readiness
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            A continuous loop taking learners from baseline diagnostics to employer application delivery, backed by unforgeable project evidence.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {features.map((feature, idx) => (
-            <motion.div 
-              key={idx} 
-              variants={itemVariants}
-              className="bg-surface backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-line shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(99,102,241,0.2)] hover:border-slate-300 hover:-translate-y-2 transition-all duration-300 group"
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-card hover:shadow-card-hover hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
             >
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 shadow-inner ${feature.color}`}>
-                <feature.icon className="w-7 h-7" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-xs ${feature.iconColor}`}>
+                    <feature.icon className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                    {feature.tag}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-ink mb-3">{feature.title}</h3>
-              <p className="text-muted mb-6 leading-relaxed">
-                {feature.description}
-              </p>
-              <Link to="/sign-in" className="inline-flex items-center text-skilloryn-400 font-semibold group-hover:text-skilloryn-300 transition-colors">
-                {feature.link}
-                <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </Link>
+
+              <div className="pt-6 mt-6 border-t border-slate-100">
+                <Link
+                  to={feature.href}
+                  className="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors group-hover:translate-x-0.5 duration-200"
+                >
+                  <span>{feature.linkText}</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

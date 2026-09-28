@@ -2,66 +2,130 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import institutionLogo from '../assets/institution-logo-theme.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <motion.nav 
-      initial={{ y: -100 }}
+    <motion.nav
+      initial={{ y: -60 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.6, type: 'spring', bounce: 0.2 }}
-      className="fixed w-full bg-surface backdrop-blur-xl z-50 border-b border-line shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md z-50 border-b border-slate-200/70"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-cream/95 flex items-center justify-center shadow-sm border border-copper-soft/30 overflow-hidden">
-              <img src={institutionLogo} alt="Skilloryn" className="w-7 h-7 object-contain" />
-            </div>
-            <span className="font-bold text-2xl text-ink tracking-tight">Skilloryn</span>
+        <div className="flex justify-between items-center h-16 sm:h-20">
+          {/* Clean Brand Text */}
+          <Link to="/" className="flex items-center group">
+            <span className="font-black text-2xl text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+              Skilloryn
+            </span>
+          </Link>
+
+          {/* Clean Nav Links (No icon/badge clutter) */}
+          <div className="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+            <Link to="/student?tab=internships" className="hover:text-indigo-600 transition-colors py-1">
+              Internships
+            </Link>
+            <Link to="/student?tab=competitions" className="hover:text-indigo-600 transition-colors py-1">
+              Competitions
+            </Link>
+            <Link to="/student?tab=jobs" className="hover:text-indigo-600 transition-colors py-1">
+              Jobs
+            </Link>
+            <Link to="/passport" className="hover:text-indigo-600 transition-colors py-1">
+              Skill Passport
+            </Link>
+            <Link to="/company" className="hover:text-indigo-600 transition-colors py-1">
+              For Employers
+            </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#passport" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Skill Passport</a>
-            <a href="#roadmap" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Roadmap</a>
-            <a href="#opportunities" className="text-body hover:text-ink hover:shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all font-medium">Opportunities</a>
-          </div>
-
+          {/* Clean Action CTAs */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/sign-in" className="text-body hover:text-ink font-medium px-4 py-2">
+            <Link
+              to="/sign-in"
+              className="text-sm font-bold text-slate-700 hover:text-slate-900 px-3 py-2 transition-colors"
+            >
               Log in
             </Link>
-            <Link to="/sign-in" className="bg-surface hover:bg-surface-strong/20 border border-slate-300 backdrop-blur-md text-ink px-5 py-2.5 rounded-full font-medium transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 flex items-center gap-2 group">
-              Get Started
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <Link
+              to="/choose-workspace"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-xs transition-all hover:shadow-sm"
+            >
+              <span>Explore Workspaces</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
+          {/* Mobile menu hamburger */}
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-ink">
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              aria-label="Toggle Menu"
+            >
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Drawer */}
       {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          className="md:hidden bg-surface/90 backdrop-blur-xl border-b border-line px-4 pt-2 pb-4 space-y-3 shadow-xl"
-        >
-          <a href="#passport" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Skill Passport</a>
-          <a href="#roadmap" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Roadmap</a>
-          <a href="#opportunities" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-body font-medium rounded-lg hover:bg-surface-strong/20 transition-colors">Opportunities</a>
-          <div className="pt-3 flex flex-col gap-2">
-            <Link to="/sign-in" onClick={() => setIsOpen(false)} className="w-full text-center text-ink font-medium py-2.5 border border-slate-300 rounded-lg block hover:bg-surface-strong">Log in</Link>
-            <Link to="/sign-in" onClick={() => setIsOpen(false)} className="w-full text-center bg-skilloryn-600 text-ink font-medium py-2.5 rounded-lg block shadow-[0_0_15px_rgba(99,102,241,0.5)]">Get Started</Link>
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-5 space-y-2 shadow-lg">
+          <Link
+            to="/student?tab=internships"
+            onClick={() => setIsOpen(false)}
+            className="block px-3.5 py-2.5 text-sm font-semibold text-slate-800 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            Internships
+          </Link>
+          <Link
+            to="/student?tab=competitions"
+            onClick={() => setIsOpen(false)}
+            className="block px-3.5 py-2.5 text-sm font-semibold text-slate-800 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            Competitions
+          </Link>
+          <Link
+            to="/student?tab=jobs"
+            onClick={() => setIsOpen(false)}
+            className="block px-3.5 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            Jobs
+          </Link>
+          <Link
+            to="/passport"
+            onClick={() => setIsOpen(false)}
+            className="block px-3.5 py-2.5 text-sm font-semibold text-slate-800 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            Skill Passport
+          </Link>
+          <Link
+            to="/company"
+            onClick={() => setIsOpen(false)}
+            className="block px-3.5 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
+          >
+            For Employers
+          </Link>
+          <div className="pt-2 flex flex-col gap-2">
+            <Link
+              to="/sign-in"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center text-slate-700 font-bold text-sm py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 block transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/choose-workspace"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-2.5 rounded-xl shadow-xs block transition-colors"
+            >
+              Explore Workspaces
+            </Link>
           </div>
-        </motion.div>
+        </div>
       )}
     </motion.nav>
   );

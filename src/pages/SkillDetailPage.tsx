@@ -1,5 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, Award, BadgeCheck, CheckCircle2, ChevronRight, ExternalLink, FileCheck2, GitBranch, Route, ShieldCheck, Sparkles, Target } from 'lucide-react';
+import {
+  ArrowLeft, BadgeCheck, CheckCircle2, ChevronRight,
+  ExternalLink, FileCheck2, GitBranch, ShieldCheck, Target
+} from 'lucide-react';
 
 function getPassportId(userSlug: string) {
   const key = `skilloryn-passport-id-${userSlug}`;
@@ -10,18 +13,134 @@ function getPassportId(userSlug: string) {
   return generated;
 }
 
-const skillDetails: Record<string, { name: string; status: string; score: string; eyebrow: string; summary: string; certifications: string[]; activities: string[]; evidence: { title: string; detail: string; url: string }[] }> = {
+const skillDetails: Record<
+  string,
+  {
+    name: string;
+    status: string;
+    score: string;
+    eyebrow: string;
+    summary: string;
+    certifications: string[];
+    activities: string[];
+    evidence: { title: string; detail: string; url: string; date?: string }[];
+  }
+> = {
   'advanced-sql': {
-    name: 'Advanced SQL', status: 'Verified', score: '92/100', eyebrow: 'Skill trail · Data Analyst pathway', summary: 'Jane demonstrated strong command of complex joins, subqueries, window functions, and practical database optimisation.', certifications: ['Skilloryn Adaptive Diagnostic', 'Advanced joins and window functions checkpoint', 'Query optimisation lab'], activities: ['Completed a timed diagnostic with a 92/100 score.', 'Built reusable cohort queries for the retention command centre.', 'Reviewed query plans and reduced a slow report by 34%.'], evidence: [{ title: 'Ecommerce churn model', detail: 'SQL feature preparation and cohort segmentation.', url: 'https://github.com/janedoe/ecommerce-churn-model' }, { title: 'Skilloryn diagnostic record', detail: 'Verified assessment result stored in the candidate ledger.', url: 'https://skilloryn.io/verify/advanced-sql' }],
+    name: 'Advanced SQL & Window Functions',
+    status: 'Verified',
+    score: '92/100',
+    eyebrow: 'Skill Stamp Endorsement · Data Analyst Pathway',
+    summary:
+      'Jane demonstrated verified mastery of multi-partition window frames, recursive CTEs, subquery factorization, indexing heuristics, and query plan execution optimization.',
+    certifications: [
+      'Skilloryn Adaptive Timed Diagnostic (92/100)',
+      'Advanced Joins & Frame Partitioning Lab',
+      'PostgreSQL Query Plan Optimization Benchmark',
+    ],
+    activities: [
+      'Completed a 30-minute timed diagnostic with 92/100 verified score.',
+      'Constructed reproducible cohort retention queries reducing table scans by 34%.',
+      'Reviewed execution plans with EXPLAIN ANALYZE for customer funnel queries.',
+    ],
+    evidence: [
+      {
+        title: 'Ecommerce Churn Predictor SQL Prep',
+        detail: 'SQL feature generation pipeline and cohort partition scripts.',
+        url: 'https://github.com/janedoe/ecommerce-churn-model',
+        date: 'Sep 2026',
+      },
+      {
+        title: 'Skilloryn Diagnostic Baseline Record',
+        detail: 'Cryptographic test ledger entry stored with continuous validation.',
+        url: 'https://skilloryn.io/verify/advanced-sql',
+        date: 'Sep 2026',
+      },
+    ],
   },
   'python-analysis': {
-    name: 'Python Data Analysis', status: 'Reviewed', score: '4 evidence items', eyebrow: 'Skill trail · Evidence review', summary: 'A practical Python workflow spanning data preparation, exploratory analysis, modelling, and readable notebooks.', certifications: ['Project evidence review', 'Pandas and NumPy notebook checkpoint', 'Model evaluation activity'], activities: ['Cleaned and joined multi-table customer data.', 'Compared Random Forest and XGBoost performance.', 'Documented assumptions, metrics, and next-step recommendations.'], evidence: [{ title: 'Ecommerce churn model', detail: 'Notebook, feature pipeline, and model evaluation.', url: 'https://github.com/janedoe/ecommerce-churn-model' }, { title: 'Pricing experiment readout', detail: 'Python analysis with confidence intervals.', url: 'https://github.com/janedoe/pricing-experiment-readout' }],
+    name: 'Python Data Analysis & ML',
+    status: 'Reviewed',
+    score: '4 Artifacts',
+    eyebrow: 'Skill Stamp Endorsement · Peer Code Review',
+    summary:
+      'A practical production-grade Python analytics workflow spanning data wrangling with Pandas/NumPy, statistical hypothesis testing, and Scikit-Learn evaluation pipelines.',
+    certifications: [
+      'Peer-Reviewed Code Evaluation',
+      'Pandas & NumPy Notebook Checkpoint',
+      'Model Evaluation & Bias Check',
+    ],
+    activities: [
+      'Cleaned and transformed multi-table transactional customer records.',
+      'Trained Random Forest and XGBoost classifiers comparing AUC-ROC.',
+      'Documented assumptions, confidence intervals, and stakeholder takeaways in clean notebooks.',
+    ],
+    evidence: [
+      {
+        title: 'Ecommerce Churn Pipeline Notebook',
+        detail: 'Full pipeline with exploratory analysis, cross-validation, and metrics.',
+        url: 'https://github.com/janedoe/ecommerce-churn-model',
+        date: 'Aug 2026',
+      },
+      {
+        title: 'Pricing Experiment Readout Analysis',
+        detail: 'Statistical hypothesis testing with bootstrap confidence intervals.',
+        url: 'https://github.com/janedoe/pricing-experiment-readout',
+        date: 'Aug 2026',
+      },
+    ],
   },
   tableau: {
-    name: 'Tableau Visualisation', status: 'Self-Reported', score: 'Candidate claim', eyebrow: 'Skill trail · Portfolio claim', summary: 'Interactive dashboards and visual storytelling designed to help non-technical stakeholders act on evidence.', certifications: ['Candidate profile claim', 'Dashboard storytelling activity', 'Portfolio walkthrough'], activities: ['Designed a retention dashboard for cohort exploration.', 'Created an executive summary view with progressive disclosure.', 'Practised annotating the story behind a chart, not just the chart itself.'], evidence: [{ title: 'Retention command centre', detail: 'Dashboard concept, user flow, and stakeholder notes.', url: 'https://janedoe.notion.site/retention-command-centre' }],
+    name: 'Tableau Visualisation & Storytelling',
+    status: 'Self-Reported',
+    score: 'Portfolio Claim',
+    eyebrow: 'Skill Stamp Endorsement · Portfolio Submission',
+    summary:
+      'Interactive executive dashboards designed to bridge telemetry and business decisions with clear visual hierarchy, progressive disclosure, and concise narrative callouts.',
+    certifications: [
+      'Candidate Portfolio Submission',
+      'Executive Dashboard Design Checkpoint',
+      'Visual Information Architecture Review',
+    ],
+    activities: [
+      'Designed a multi-cohort retention dashboard with interactive parameter controls.',
+      'Created executive KPI summary cards highlighting month-over-month variances.',
+      'Annotated charts with qualitative context rather than raw numbers alone.',
+    ],
+    evidence: [
+      {
+        title: 'Cohort Retention Command Center',
+        detail: 'Dashboard specs, information architecture, and stakeholder walkthrough notes.',
+        url: 'https://janedoe.notion.site/retention-command-centre',
+        date: 'Jul 2026',
+      },
+    ],
   },
   experimentation: {
-    name: 'A/B Testing', status: 'Verified', score: '86/100', eyebrow: 'Skill trail · Mission assessment', summary: 'Experiment design grounded in clear hypotheses, confidence intervals, and recommendations tied to business decisions.', certifications: ['Mission assessment', 'Hypothesis design checkpoint', 'Statistical significance activity'], activities: ['Wrote a pre-registration style test plan.', 'Compared treatment and control performance.', 'Translated the result into a decision memo with uncertainty attached.'], evidence: [{ title: 'Pricing experiment readout', detail: 'A/B analysis, recommendation, and confidence intervals.', url: 'https://github.com/janedoe/pricing-experiment-readout' }],
+    name: 'A/B Testing & Causal Inference',
+    status: 'Verified',
+    score: '86/100',
+    eyebrow: 'Skill Stamp Endorsement · Mission Assessment',
+    summary:
+      'Rigorous experiment design grounded in pre-registration, Minimum Detectable Effect (MDE) calculations, sample size budgeting, and executive decision memos under uncertainty.',
+    certifications: [
+      'Skilloryn Mission Assessment (86/100)',
+      'Pre-registration & MDE Hypothesis Lab',
+      'Statistical Significance & Peeking Mitigation',
+    ],
+    activities: [
+      'Drafted a pre-registered experiment protocol with sample size power calculations.',
+      'Analyzed treatment vs control metrics using two-tailed hypothesis tests.',
+      'Delivered a stakeholder decision memo with risk intervals and recommended 7% price change.',
+    ],
+    evidence: [
+      {
+        title: 'Pricing Experiment Executive Memo',
+        detail: 'A/B test statistical analysis, confidence intervals, and rollback criteria.',
+        url: 'https://github.com/janedoe/pricing-experiment-readout',
+        date: 'Sep 2026',
+      },
+    ],
   },
 };
 
@@ -30,5 +149,171 @@ export default function SkillDetailPage() {
   const skill = skillDetails[skillId || 'advanced-sql'] || skillDetails['advanced-sql'];
   const passportId = getPassportId(slug || 'jane-doe');
 
-  return <div className="min-h-screen bg-paper text-ink relative overflow-hidden"><div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true"><div className="theme-orb theme-orb-one" /><div className="theme-orb theme-orb-two" /><div className="theme-grid" /></div><header className="relative z-10 border-b border-line/80 bg-surface/80 backdrop-blur-xl"><div className="max-w-5xl mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between"><Link to={`/passport/${slug || 'jane-doe'}`} className="flex items-center gap-3 text-navy hover:text-copper-strong"><div className="w-9 h-9 rounded-xl bg-navy text-cream flex items-center justify-center"><Award className="w-5 h-5" /></div><div><p className="font-bold leading-none">Skilloryn</p><p className="text-[11px] uppercase tracking-[0.2em] text-muted mt-1">Skill detail</p></div></Link><div className="flex items-center gap-2 text-xs text-muted"><ShieldCheck className="w-4 h-4 text-skilloryn-600" /> Evidence trail</div></div></header><main className="relative z-10 max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-12"><Link to={`/passport/${slug || 'jane-doe'}`} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink mb-8"><ArrowLeft className="w-4 h-4" /> Back to passport</Link><div className="grid lg:grid-cols-[1fr_0.72fr] gap-6 items-start"><section className="rounded-[28px] border border-line bg-surface/90 shadow-soft overflow-hidden"><div className="bg-navy text-cream p-7 md:p-9 relative overflow-hidden"><div className="absolute -right-12 -top-12 w-44 h-44 rounded-full border border-copper-soft/30" /><div className="absolute right-8 top-9 w-20 h-20 rounded-full border border-copper-soft/20" /><p className="text-xs uppercase tracking-[0.2em] text-ice">{skill.eyebrow}</p><div className="flex flex-wrap items-start justify-between gap-4 mt-3"><div><h1 className="text-4xl font-bold">{skill.name}</h1><p className="text-ice mt-2 max-w-xl leading-relaxed">{skill.summary}</p></div><span className="rounded-2xl bg-white/10 border border-white/15 px-4 py-3 text-right"><span className="block text-[10px] uppercase tracking-[0.16em] text-ice">{skill.status}</span><span className="block font-mono font-bold text-xl mt-1">{skill.score}</span></span></div></div><div className="p-7 md:p-9"><div className="flex items-center gap-2 text-sm font-bold text-navy mb-4"><FileCheck2 className="w-5 h-5 text-copper" /> What this skill includes</div><div className="grid sm:grid-cols-3 gap-3">{skill.certifications.map((item, index) => <div key={item} className="rounded-2xl bg-cream border border-copper-soft/60 p-4"><span className="w-7 h-7 rounded-xl bg-white text-copper-strong flex items-center justify-center font-mono text-xs font-bold">0{index + 1}</span><p className="text-sm font-bold text-navy mt-3">{item}</p></div>)}</div><div className="flex items-center gap-2 text-sm font-bold text-navy mt-8 mb-4"><Target className="w-5 h-5 text-copper" /> Activity log</div><div className="space-y-3">{skill.activities.map((activity) => <div key={activity} className="flex items-start gap-3 rounded-2xl border border-line bg-white/70 p-4"><CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" /><p className="text-sm text-body leading-relaxed">{activity}</p></div>)}</div></div></section><aside className="space-y-6 lg:sticky lg:top-6"><div className="rounded-[28px] border border-line bg-surface/90 shadow-soft p-6"><div className="flex items-center gap-3 mb-5"><div className="w-11 h-11 rounded-2xl bg-skilloryn-100 text-skilloryn-700 flex items-center justify-center"><Route className="w-5 h-5" /></div><div><p className="text-xs uppercase tracking-[0.16em] text-muted font-bold">Candidate</p><h2 className="font-bold text-xl text-navy">Jane Doe</h2></div></div><div className="rounded-2xl bg-skilloryn-50 border border-skilloryn-200 p-4"><div className="flex items-center gap-2 text-sm font-bold text-skilloryn-900"><BadgeCheck className="w-4 h-4" /> Passport-linked evidence</div><p className="text-xs text-muted mt-2">This trail is connected to the shared passport and its unique identity record.</p></div><div className="flex items-center justify-between mt-5 text-sm"><span className="text-muted">Passport ID</span><span className="font-mono font-bold text-navy">{passportId}</span></div></div><div className="rounded-[28px] border border-line bg-surface/90 shadow-soft p-6"><div className="flex items-center gap-2 text-sm font-bold text-navy mb-4"><GitBranch className="w-5 h-5 text-copper" /> Linked evidence</div><div className="space-y-3">{skill.evidence.map((item) => <a href={item.url} target="_blank" rel="noreferrer" key={item.title} className="block rounded-2xl border border-line bg-white/70 p-4 hover:-translate-y-0.5 hover:shadow-card transition-all group"><div className="flex items-start justify-between gap-2"><p className="text-sm font-bold text-navy group-hover:text-copper-strong">{item.title}</p><ExternalLink className="w-4 h-4 text-muted" /></div><p className="text-xs text-muted mt-1 leading-relaxed">{item.detail}</p><span className="inline-flex items-center gap-1 text-[11px] font-bold text-copper-strong mt-3">Open evidence <ArrowUpRight className="w-3 h-3" /></span></a>)}</div></div><Link to={`/passport/${slug || 'jane-doe'}`} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-navy text-cream px-4 py-3.5 text-sm font-bold hover:bg-navy-soft shadow-navy">Return to passport <ChevronRight className="w-4 h-4" /></Link></aside></div></main><footer className="relative z-10 max-w-5xl mx-auto px-5 md:px-8 pb-8 text-xs text-muted flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-copper" /> Every claim has a trail. Every trail can be explored.</footer></div>;
+  return (
+    <div className="min-h-screen bg-paper text-ink relative">
+      {/* Top Header */}
+      <header className="sticky top-0 z-30 border-b border-line/80 bg-white/90 backdrop-blur-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link
+            to={`/passport/${slug || 'jane-doe'}`}
+            className="flex flex-col text-slate-900 hover:text-indigo-600 transition-colors"
+          >
+            <span className="font-black text-2xl text-slate-900 leading-none">Skilloryn</span>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-1">
+              Verified Skill Audit Trail
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Cryptographic Proof</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6">
+        <Link
+          to={`/passport/${slug || 'jane-doe'}`}
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-navy px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Passport Booklet
+        </Link>
+
+        <div className="grid lg:grid-cols-[1fr_0.68fr] gap-6 items-start">
+          {/* Main Skill Card */}
+          <section className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+            {/* Header Banner */}
+            <div className="bg-navy text-white p-6 sm:p-8 relative overflow-hidden">
+              <div className="relative z-10 space-y-3">
+                <span className="text-[10px] uppercase tracking-widest font-extrabold text-amber-300">
+                  {skill.eyebrow}
+                </span>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    {skill.name}
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-amber-300 border border-white/20 text-xs font-mono font-extrabold shrink-0">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {skill.score}
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                  {skill.summary}
+                </p>
+              </div>
+            </div>
+
+            {/* Checkpoints & Activities */}
+            <div className="p-6 sm:p-8 space-y-8">
+              {/* Checkpoints */}
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                  <FileCheck2 className="w-4 h-4 text-blue-600" /> Verified Competency Checkpoints
+                </h3>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {skill.certifications.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between"
+                    >
+                      <span className="w-6 h-6 rounded-md bg-white border border-slate-200 text-blue-700 flex items-center justify-center font-mono text-[10px] font-bold">
+                        0{idx + 1}
+                      </span>
+                      <p className="text-xs font-bold text-navy mt-3 leading-snug">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Activity Log */}
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-blue-600" /> Activity Evidence Log
+                </h3>
+                <div className="space-y-2.5">
+                  {skill.activities.map((activity, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-slate-700 leading-relaxed font-medium">{activity}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Sidebar: Passport Link & Artifacts */}
+          <aside className="space-y-5 lg:sticky lg:top-20">
+            {/* Candidate Identity Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                  <BadgeCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    Candidate Profile
+                  </p>
+                  <h3 className="font-extrabold text-navy text-sm">Jane Doe</h3>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-200/60 text-xs space-y-1">
+                <p className="font-bold text-navy">Biometric Credential Bond</p>
+                <p className="text-[11px] text-slate-600">
+                  This skill trail is anchored to Passport ID <strong className="font-mono">{passportId}</strong>.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-muted">Verification Status</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold text-[10px]">
+                  {skill.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Linked Artifacts */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card space-y-3">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <GitBranch className="w-4 h-4 text-blue-600" /> Linked Repositories & Proofs
+              </h3>
+
+              <div className="space-y-2">
+                {skill.evidence.map((item, idx) => (
+                  <a
+                    key={idx}
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block p-3 rounded-xl border border-slate-200 hover:border-blue-400 bg-white hover:bg-slate-50 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-xs font-bold text-navy group-hover:text-blue-700">
+                        {item.title}
+                      </p>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0" />
+                    </div>
+                    <p className="text-[10px] text-muted mt-1 leading-relaxed">{item.detail}</p>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <Link
+              to={`/passport/${slug || 'jane-doe'}`}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-navy hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
+            >
+              Return to Passport Booklet <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </aside>
+        </div>
+      </main>
+    </div>
+  );
 }

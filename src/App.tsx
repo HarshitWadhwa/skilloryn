@@ -1,12 +1,25 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import SignIn from './pages/SignIn';
-import WorkspaceSelector from './pages/WorkspaceSelector';
-import StudentDashboard from './pages/StudentDashboard';
-import CompanyDashboard from './pages/CompanyDashboard';
-import InstitutionDashboard from './pages/InstitutionDashboard';
-import PassportPage from './pages/PassportPage';
-import SkillDetailPage from './pages/SkillDetailPage';
+
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const SignIn = lazy(() => import('./pages/SignIn'));
+const WorkspaceSelector = lazy(() => import('./pages/WorkspaceSelector'));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'));
+const InstitutionDashboard = lazy(() => import('./pages/InstitutionDashboard'));
+const PassportPage = lazy(() => import('./pages/PassportPage'));
+const SkillDetailPage = lazy(() => import('./pages/SkillDetailPage'));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-paper">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading Skilloryn...</span>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -27,16 +40,19 @@ function App() {
           <div className="pointer-glow" />
         </div>
         <div className="relative z-10 h-full w-full">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/choose-workspace" element={<WorkspaceSelector />} />
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/company" element={<CompanyDashboard />} />
-            <Route path="/institution" element={<InstitutionDashboard />} />
-            <Route path="/passport/:slug" element={<PassportPage />} />
-            <Route path="/passport/:slug/skills/:skillId" element={<SkillDetailPage />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/choose-workspace" element={<WorkspaceSelector />} />
+              <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/company" element={<CompanyDashboard />} />
+              <Route path="/institution" element={<InstitutionDashboard />} />
+              <Route path="/passport" element={<PassportPage />} />
+              <Route path="/passport/:slug" element={<PassportPage />} />
+              <Route path="/passport/:slug/skills/:skillId" element={<SkillDetailPage />} />
+            </Routes>
+          </Suspense>
         </div>
       </div>
     </Router>

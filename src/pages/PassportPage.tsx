@@ -1,45 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import {
-  ArrowLeft, ArrowRight, ArrowUpRight, Award, BadgeCheck, Check, CheckCircle2, ChevronRight, Clipboard, Download, ExternalLink, FileCheck2, Fingerprint, GitBranch, Globe2, IdCard, Link2, LockKeyhole, Mail, MapPin, Medal, Plane, Play, Route, Share2, ShieldCheck, Sparkles,
+  ArrowLeft, Check, ChevronRight,
+  FileCheck2, IdCard, LockKeyhole,
+  ShieldCheck, Sparkles
 } from 'lucide-react';
-import institutionLogo from '../assets/institution-logo-theme.png';
-import janeAvatar from '../assets/jane-doe-avatar.svg';
+import SkillPassportBook, {
+  DEFAULT_PROFILE, DEFAULT_SKILLS, DEFAULT_PROJECTS
+} from '../components/SkillPassportBook';
 
-type SkillStatus = 'Verified' | 'Reviewed' | 'Self-Reported';
-type Skill = { id: string; name: string; short: string; description: string; status: SkillStatus; score?: string; source: string };
-type Project = { id: string; rank: number; title: string; description: string; url: string; label: string; stack: string[]; outcome: string };
-
-const profile = {
-  name: 'Jane Doe', slug: 'jane-doe', role: 'Data Analyst', level: 'Level 12 Analyst', location: 'London · Remote', email: 'jane.doe@skilloryn.io', photo: janeAvatar,
-  summary: 'Evidence-led analyst turning messy customer data into clear decisions across retention, experimentation, and storytelling.',
-  linkedin: 'https://www.linkedin.com/in/jane-doe', github: 'https://github.com/janedoe', portfolio: 'https://janedoe.notion.site/portfolio',
-};
-
-const skills: Skill[] = [
-  { id: 'advanced-sql', name: 'Advanced SQL', short: 'SQL', description: 'Complex joins, subqueries, window functions, and query optimisation.', status: 'Verified', score: '92/100', source: 'Skilloryn Adaptive Diagnostic' },
-  { id: 'python-analysis', name: 'Python Data Analysis', short: 'PY', description: 'Pandas, NumPy, statistical modelling, and reproducible notebooks.', status: 'Reviewed', score: '4 evidence items', source: 'Project evidence review' },
-  { id: 'tableau', name: 'Tableau Visualisation', short: 'VIZ', description: 'Interactive dashboards, visual hierarchy, and insight storytelling.', status: 'Self-Reported', source: 'Candidate profile' },
-  { id: 'experimentation', name: 'A/B Testing', short: 'A/B', description: 'Hypothesis design, statistical significance, and experiment readouts.', status: 'Verified', score: '86/100', source: 'Mission assessment' },
-];
-
-const projects: Project[] = [
-  { id: 'churn-model', rank: 1, title: 'Ecommerce churn model', description: 'Customer churn prediction using Random Forest and XGBoost, with cleaning, EDA, and evaluation.', url: 'https://github.com/janedoe/ecommerce-churn-model', label: 'GitHub repository', stack: ['Python', 'Pandas', 'XGBoost'], outcome: 'Improved recall by 18%.' },
-  { id: 'retention-dashboard', rank: 2, title: 'Retention command centre', description: 'A decision-ready dashboard for cohort drop-off, segments, and win-back campaigns.', url: 'https://janedoe.notion.site/retention-command-centre', label: 'Real-life project notes', stack: ['Tableau', 'SQL', 'Storytelling'], outcome: 'Cut weekly reporting to two hours.' },
-  { id: 'experiment-readout', rank: 3, title: 'Pricing experiment readout', description: 'An evidence memo translating an A/B pricing test into a stakeholder recommendation.', url: 'https://github.com/janedoe/pricing-experiment-readout', label: 'GitHub project', stack: ['Python', 'Statistics', 'A/B testing'], outcome: 'Recommended a 7% uplift.' },
-];
-
-const stops = [
-  { id: 'sql', label: 'SQL', title: 'Advanced SQL', detail: '92/100 · verified' },
-  { id: 'python', label: 'PY', title: 'Python analysis', detail: 'Project reviewed' },
-  { id: 'viz', label: 'VIZ', title: 'Visual storytelling', detail: 'Portfolio attached' },
-  { id: 'ab', label: 'A/B', title: 'Experiment design', detail: 'Mission verified' },
-  { id: 'job', label: 'JOB', title: 'Data Manager', detail: 'Opportunity ready' },
-];
-
-function getPassportId(userSlug = profile.slug) {
+function getPassportId(userSlug: string) {
   const key = `skilloryn-passport-id-${userSlug}`;
   const existing = window.localStorage.getItem(key);
   if (existing) return existing;
@@ -48,43 +18,297 @@ function getPassportId(userSlug = profile.slug) {
   return generated;
 }
 
-function statusStyles(status: SkillStatus) {
-  if (status === 'Verified') return 'bg-green-100 text-green-700 border-green-200';
-  if (status === 'Reviewed') return 'bg-cyan-50 text-cyan-700 border-cyan-200';
-  return 'bg-amber-50 text-amber-700 border-amber-200';
-}
-
-function MicroAtlas({ journeyStage, onSelect }: { journeyStage: number; onSelect: (index: number) => void }) {
-  const points = [{ x: 9, y: 68 }, { x: 29, y: 32 }, { x: 51, y: 66 }, { x: 73, y: 29 }, { x: 91, y: 58 }];
-  const plane = points[Math.min(journeyStage, points.length - 1)];
-  return <div className="micro-atlas rounded-[22px] border border-navy/20 bg-navy text-cream p-3.5 md:p-4"><div className="flex items-center justify-between gap-3 mb-3"><div><div className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.22em] text-ice"><Route className="w-3 h-3 text-copper-soft" /> Course map</div><p className="text-sm md:text-base font-bold mt-1">Data Analyst route</p></div><span className="micro-atlas-status">{journeyStage >= stops.length - 1 ? 'Landed' : `Stop ${journeyStage + 1} of ${stops.length}`}</span></div><div className="micro-map relative h-[152px] md:h-[174px] rounded-2xl border border-white/10 bg-[#19354b] overflow-hidden"><div className="map-grid" /><svg className="territory-silhouette" viewBox="0 0 520 180" aria-hidden="true"><path d="M38 111C54 94 70 89 88 76C105 64 116 67 129 52C141 39 158 42 172 51C185 60 199 57 213 47C231 34 246 38 258 49C273 63 285 66 299 58C313 50 322 57 333 67C346 79 362 83 378 77C396 70 405 80 419 91C434 103 452 103 474 112L460 125C442 134 424 132 408 141C392 150 374 144 359 151C344 158 327 153 310 160C290 168 277 158 258 155C238 151 225 141 209 145C191 149 174 143 162 134C149 125 131 129 117 137C100 147 82 142 68 133C55 126 43 124 38 111Z" fill="rgba(143,183,178,.22)" stroke="rgba(230,200,179,.42)" stroke-width="2" /><path d="M117 83C140 70 160 77 177 70C196 62 215 71 229 81C246 93 268 86 289 91C310 96 325 111 346 108C365 105 381 113 397 121" fill="none" stroke="rgba(169,203,198,.28)" stroke-width="2" stroke-dasharray="5 7" /></svg><div className="map-contour contour-one" /><div className="map-contour contour-two" /><svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M9 68 C18 67 20 38 29 32 C38 27 42 65 51 66 C61 67 63 31 73 29 C82 28 84 56 91 58" fill="none" stroke="rgba(230,200,179,.55)" strokeWidth="0.7" strokeDasharray="2 2" /></svg><div className="absolute transition-all duration-700" style={{ left: `${plane.x}%`, top: `${plane.y}%` }}><Plane className="w-5 h-5 text-copper-soft -rotate-12 drop-shadow-[0_0_8px_rgba(230,200,179,.85)]" /></div>{points.map((point, index) => <button key={stops[index].id} onClick={() => onSelect(index)} className={`absolute -translate-x-1/2 -translate-y-1/2 group ${index <= journeyStage ? 'text-copper-soft' : 'text-ice/55'}`} style={{ left: `${point.x}%`, top: `${point.y}%` }} aria-label={`Open ${stops[index].title}`}><span className={`block w-4 h-4 rounded-full border-2 ${index <= journeyStage ? 'bg-copper border-copper-soft' : 'bg-navy border-ice/40'} shadow-[0_0_0_4px_rgba(255,255,255,.08)]`} /><span className={`absolute ${index % 2 === 0 ? 'top-5' : 'bottom-5'} left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-bold tracking-wide text-cream`}>{stops[index].label}</span><span className="absolute top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-navy/95 border border-white/10 px-1.5 py-0.5 text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">{stops[index].title}</span></button>)}</div><div className="flex items-center justify-between gap-3 mt-2.5 text-[9px] text-ice/65"><span className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-copper" /> evidence checkpoints</span><span className="inline-flex items-center gap-1 font-bold text-copper-soft"><MapPinIcon /> {stops[Math.min(journeyStage, stops.length - 1)].title}</span></div></div>;
-}
-
-function MapPinIcon() { return <span className="inline-block w-1.5 h-1.5 rounded-full bg-copper-soft" />; }
-
 export default function PassportPage() {
   const { slug } = useParams();
-  const passportSlug = slug || profile.slug;
-  const passportRef = useRef<HTMLDivElement>(null);
+  const passportSlug = slug || DEFAULT_PROFILE.slug;
   const [passportId] = useState(() => getPassportId(passportSlug));
-  const [selectedSkills, setSelectedSkills] = useState<Record<string, boolean>>(() => { const stored = window.localStorage.getItem(`skilloryn-shared-skills-${passportSlug}`); if (stored) { try { return JSON.parse(stored) as Record<string, boolean>; } catch { /* defaults */ } } return Object.fromEntries(skills.map((skill) => [skill.id, true])); });
-  const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>(() => { const stored = window.localStorage.getItem(`skilloryn-shared-projects-${passportSlug}`); if (stored) { try { return JSON.parse(stored) as Record<string, boolean>; } catch { /* defaults */ } } return Object.fromEntries(projects.map((project) => [project.id, true])); });
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [journeyStage, setJourneyStage] = useState(0);
-  const [revealKey, setRevealKey] = useState(0);
-  const visibleSkills = useMemo(() => skills.filter((skill) => selectedSkills[skill.id]), [selectedSkills]);
-  const visibleProjects = useMemo(() => projects.filter((project) => selectedProjects[project.id]), [selectedProjects]);
-  const shareUrl = `${window.location.origin}/passport/${passportSlug}`;
-  const verifiedCount = visibleSkills.filter((skill) => skill.status === 'Verified').length;
 
-  useEffect(() => { window.localStorage.setItem(`skilloryn-shared-skills-${passportSlug}`, JSON.stringify(selectedSkills)); }, [passportSlug, selectedSkills]);
-  useEffect(() => { window.localStorage.setItem(`skilloryn-shared-projects-${passportSlug}`, JSON.stringify(selectedProjects)); }, [passportSlug, selectedProjects]);
-  useEffect(() => { setIsOpen(false); setJourneyStage(0); const openTimer = window.setTimeout(() => setIsOpen(true), 280); const flightTimer = window.setInterval(() => setJourneyStage((current) => current >= stops.length - 1 ? current : current + 1), 620); const stopTimer = window.setTimeout(() => window.clearInterval(flightTimer), 3400); return () => { window.clearTimeout(openTimer); window.clearTimeout(stopTimer); window.clearInterval(flightTimer); }; }, [revealKey]);
+  // Customizable shared claims stored in localStorage
+  const [selectedSkills, setSelectedSkills] = useState<Record<string, boolean>>(() => {
+    const stored = window.localStorage.getItem(`skilloryn-shared-skills-${passportSlug}`);
+    if (stored) {
+      try {
+        return JSON.parse(stored) as Record<string, boolean>;
+      } catch {
+        /* fallback */
+      }
+    }
+    return Object.fromEntries(DEFAULT_SKILLS.map((s) => [s.id, true]));
+  });
 
-  const handleCopy = async () => { try { await navigator.clipboard.writeText(shareUrl); setIsCopied(true); window.setTimeout(() => setIsCopied(false), 2200); } catch { setIsCopied(false); } };
-  const handleDownload = async () => { if (!passportRef.current) return; setIsDownloading(true); try { const canvas = await html2canvas(passportRef.current, { scale: 2, useCORS: true, backgroundColor: '#fffaf1' }); const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }); const margin = 8; const contentWidth = 281; const contentHeight = (canvas.height * contentWidth) / canvas.width; const pageHeight = 194; const imageData = canvas.toDataURL('image/png', 1); if (contentHeight <= pageHeight) pdf.addImage(imageData, 'PNG', margin, margin, contentWidth, contentHeight); else { let remaining = contentHeight; let offset = 0; while (remaining > 0) { if (offset > 0) pdf.addPage(); pdf.addImage(imageData, 'PNG', margin, margin - offset, contentWidth, contentHeight); offset += pageHeight; remaining -= pageHeight; } } const rect = passportRef.current.getBoundingClientRect(); const scale = contentWidth / canvas.width; Array.from(passportRef.current.querySelectorAll<HTMLElement>('[data-pdf-link]')).forEach((anchor) => { const ar = anchor.getBoundingClientRect(); const x = margin + (ar.left - rect.left) * scale * 2; const y = margin + (ar.top - rect.top) * scale * 2; const w = Math.max(8, ar.width * scale * 2); const h = Math.max(4, ar.height * scale * 2); const page = Math.floor((y - margin) / pageHeight); while (pdf.getNumberOfPages() <= page + 1) pdf.addPage(); pdf.setPage(page + 1); pdf.link(x, y - page * pageHeight, w, h, { url: anchor.dataset.pdfLink || '' }); }); pdf.save(`${profile.name.replace(/\s+/g, '-').toLowerCase()}-skill-passport-${passportId}.pdf`); } finally { setIsDownloading(false); } };
+  const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>(() => {
+    const stored = window.localStorage.getItem(`skilloryn-shared-projects-${passportSlug}`);
+    if (stored) {
+      try {
+        return JSON.parse(stored) as Record<string, boolean>;
+      } catch {
+        /* fallback */
+      }
+    }
+    return Object.fromEntries(DEFAULT_PROJECTS.map((p) => [p.id, true]));
+  });
 
-  return <div className="min-h-screen bg-paper text-ink relative overflow-hidden"><div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true"><div className="theme-orb theme-orb-one" /><div className="theme-orb theme-orb-two" /><div className="theme-grid" /></div><header className="relative z-10 border-b border-line/80 bg-surface/80 backdrop-blur-xl"><div className="max-w-6xl mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between gap-4"><Link to="/student" className="flex items-center gap-3 text-navy hover:text-copper-strong transition-colors"><img src={institutionLogo} alt="Skilloryn" className="w-9 h-9 object-contain rounded-xl border border-white/10 bg-white/5 p-1 shadow-sm" /><div><p className="font-bold leading-none">Skilloryn</p><p className="text-[11px] uppercase tracking-[0.2em] text-muted mt-1">Public Skill Passport</p></div></Link><div className="flex items-center gap-2 text-sm text-muted"><ShieldCheck className="w-4 h-4 text-skilloryn-600" /><span className="hidden sm:inline">Evidence-aware profile</span><span className="w-1.5 h-1.5 rounded-full bg-green-500" /><span>Live</span></div></div></header><main className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 py-8 md:py-12"><div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-7"><div><Link to="/student" className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink mb-4"><ArrowLeft className="w-4 h-4" /> Back to workspace</Link><p className="text-xs uppercase tracking-[0.2em] font-bold text-copper-strong mb-3">Share-ready profile</p><h1 className="text-4xl md:text-5xl font-bold tracking-tight text-navy">A small passport. A big trail.</h1><p className="text-muted mt-3 max-w-2xl leading-relaxed">A compact, horizontal credential that opens upward, maps the journey, and keeps the evidence one click away.</p></div><div className="rounded-2xl border border-line bg-surface/80 px-4 py-3 flex items-center gap-3 shadow-card shrink-0"><div className="w-9 h-9 rounded-xl bg-skilloryn-100 text-skilloryn-700 flex items-center justify-center"><IdCard className="w-5 h-5" /></div><div><p className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted">Unique passport ID</p><p className="font-mono font-bold text-navy text-sm">{passportId}</p></div></div></div><div className="flex items-center justify-between gap-3 mb-3 px-1"><div className="flex items-center gap-2 text-sm font-bold text-navy"><Share2 className="w-4 h-4 text-copper" /> Passport reveal</div><button onClick={() => setRevealKey((key) => key + 1)} className="inline-flex items-center gap-2 text-xs font-bold text-muted hover:text-navy"><Play className="w-3.5 h-3.5" /> Replay opening</button></div><div className="passport-stage passport-stage-compact"><div className={`passport-cover ${isOpen ? 'passport-cover-open' : ''}`}><div className="passport-cover-inner"><div className="passport-cover-stitch" /><div className="passport-cover-emblem"><Medal className="w-8 h-8" /></div><p className="text-[10px] uppercase tracking-[0.35em] text-copper-soft font-bold">Skilloryn</p><h2 className="text-3xl md:text-5xl font-bold mt-3">Skill<br />Passport</h2><div className="passport-cover-line" /><p className="text-sm text-ice/80">{profile.name}<br /><span className="text-xs text-ice/55">{passportId}</span></p><div className="passport-cover-stamp">EVIDENCE<br />AWARE</div><div className="passport-cover-arrow"><ArrowUpRight className="w-4 h-4" /> opens upward</div></div></div><div className={`passport-notebook passport-notebook-compact ${isOpen ? 'passport-notebook-open' : ''}`} ref={passportRef}><div className="compact-passport-inner"><div className="compact-passport-header"><div className="flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-navy text-cream flex items-center justify-center"><Medal className="w-4 h-4" /></div><div><p className="text-[9px] tracking-[0.2em] uppercase font-bold text-copper-strong">Skilloryn credential</p><p className="text-sm font-bold text-navy">Skill Passport</p></div></div><div className="text-right"><p className="text-[8px] uppercase tracking-[0.16em] font-bold text-muted">Passport ID</p><p className="font-mono text-[10px] font-bold text-navy">{passportId}</p></div></div><MicroAtlas journeyStage={journeyStage} onSelect={setJourneyStage} /><div className="compact-identity-row"><div className="compact-identity"><div className="relative shrink-0"><img src={profile.photo} alt={`${profile.name} profile`} className="w-[70px] h-[70px] md:w-[84px] md:h-[84px] rounded-2xl object-cover border-2 border-white shadow-card" /><span className="absolute -right-1 -bottom-1 w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center border-2 border-[#fffaf1]"><BadgeCheck className="w-3.5 h-3.5" /></span></div><div className="min-w-0"><div className="flex items-center gap-1.5 flex-wrap"><h3 className="text-xl md:text-2xl font-bold text-navy">{profile.name}</h3><span className="px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200 text-[8px] font-bold">VERIFIED</span></div><p className="text-xs font-bold text-skilloryn-700 mt-0.5">{profile.role} · {profile.level}</p><p className="text-[10px] text-muted mt-1.5 leading-relaxed max-w-[390px]">{profile.summary}</p><div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[9px] text-muted"><span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3 text-copper" /> {profile.location}</span><span className="inline-flex items-center gap-1"><Mail className="w-3 h-3 text-copper" /> {profile.email}</span></div></div></div><div className="compact-links"><a data-pdf-link={profile.github} href={profile.github} target="_blank" rel="noreferrer" className="compact-link"><GitBranch className="w-3 h-3" /> GitHub <ArrowUpRight className="w-2.5 h-2.5" /></a><a data-pdf-link={profile.linkedin} href={profile.linkedin} target="_blank" rel="noreferrer" className="compact-link"><Link2 className="w-3 h-3" /> LinkedIn <ArrowUpRight className="w-2.5 h-2.5" /></a><a data-pdf-link={profile.portfolio} href={profile.portfolio} target="_blank" rel="noreferrer" className="compact-link"><Globe2 className="w-3 h-3" /> Projects <ArrowUpRight className="w-2.5 h-2.5" /></a></div></div><div className="compact-divider" /><div className="compact-bottom-grid"><section><div className="flex items-center justify-between mb-2"><h4 className="compact-section-title"><Award className="w-3.5 h-3.5 text-copper" /> Skills in brief</h4><span className="text-[9px] text-muted">{visibleSkills.length} shown</span></div><div className="compact-skill-grid">{visibleSkills.map((skill) => <Link key={skill.id} to={`/passport/${passportSlug}/skills/${skill.id}`} className="compact-skill-card"><div className="flex items-center justify-between gap-1"><span className="text-[10px] font-bold text-navy truncate">{skill.name}</span><ArrowRight className="w-3 h-3 text-copper shrink-0" /></div><p className="text-[9px] text-muted mt-1 line-clamp-2">{skill.description}</p><div className="flex items-center justify-between gap-1 mt-1.5"><span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${statusStyles(skill.status)}`}>{skill.status}</span>{skill.score && <span className="text-[8px] font-mono font-bold text-skilloryn-700">{skill.score}</span>}</div></Link>)}</div></section><section><div className="flex items-center justify-between mb-2"><h4 className="compact-section-title"><Link2 className="w-3.5 h-3.5 text-copper" /> Linked evidence</h4><span className="text-[9px] text-muted">{visibleProjects.length} ranked</span></div><div className="compact-project-list">{visibleProjects.map((project) => <a data-pdf-link={project.url} href={project.url} target="_blank" rel="noreferrer" key={project.id} className="compact-project"><span className="compact-rank">#{project.rank}</span><span className="min-w-0 flex-1"><span className="block text-[10px] font-bold text-navy truncate">{project.title}</span><span className="block text-[8px] text-muted truncate">{project.label} · {project.outcome}</span></span><ExternalLink className="w-3 h-3 text-copper shrink-0" /></a>)}</div></section></div><div className="compact-passport-footer"><span className="inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-green-600" /> Selected claims only</span><span>{profile.role} · skilloryn.io/passport/{passportSlug}</span><span className="verified-stamp"><Fingerprint className="w-3 h-3" /> Verified by Skilloryn</span></div></div></div></div><div className="grid lg:grid-cols-[0.76fr_1.24fr] gap-6 items-start mt-7"><aside className="bg-surface/90 border border-line rounded-3xl p-5 md:p-6 shadow-soft lg:sticky lg:top-6"><div className="flex items-start justify-between gap-4 mb-5"><div><h2 className="font-bold text-lg text-navy">Share settings</h2><p className="text-sm text-muted mt-1">Control every visible claim.</p></div><div className="w-10 h-10 rounded-xl bg-navy text-cream flex items-center justify-center"><LockKeyhole className="w-5 h-5" /></div></div><div className="rounded-2xl bg-cream border border-copper-soft/70 p-4 mb-5"><div className="flex items-center gap-2 text-sm font-bold text-navy"><Sparkles className="w-4 h-4 text-copper" /> {visibleSkills.length + visibleProjects.length} items selected</div><p className="text-xs text-muted mt-1">{verifiedCount} verified skills · {visibleProjects.length} ranked projects</p></div><div className="mb-6"><div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-navy">Skills to portray</h3><span className="text-xs text-muted">{visibleSkills.length}/{skills.length}</span></div><div className="space-y-2.5">{skills.map((skill) => { const checked = Boolean(selectedSkills[skill.id]); return <label key={skill.id} className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${checked ? 'border-skilloryn-300 bg-skilloryn-50/60' : 'border-line bg-white/60 opacity-65'}`}><input className="sr-only" type="checkbox" checked={checked} onChange={() => setSelectedSkills((current) => ({ ...current, [skill.id]: !current[skill.id] }))} /><span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${checked ? 'bg-navy border-navy text-cream' : 'border-slate-300 bg-white'}`}>{checked && <Check className="w-3.5 h-3.5" />}</span><span className="min-w-0"><span className="block text-sm font-bold text-navy">{skill.name}</span><span className="block text-xs text-muted mt-0.5">{skill.status}{skill.score ? ` · ${skill.score}` : ''}</span></span></label>; })}</div></div><div className="mb-6"><div className="flex items-center justify-between mb-3"><h3 className="text-sm font-bold text-navy">Projects & links</h3><span className="text-xs text-muted">{visibleProjects.length}/{projects.length}</span></div><div className="space-y-2.5">{projects.map((project) => { const checked = Boolean(selectedProjects[project.id]); return <label key={project.id} className={`flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${checked ? 'border-skilloryn-300 bg-skilloryn-50/60' : 'border-line bg-white/60 opacity-65'}`}><input className="sr-only" type="checkbox" checked={checked} onChange={() => setSelectedProjects((current) => ({ ...current, [project.id]: !current[project.id] }))} /><span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${checked ? 'bg-navy border-navy text-cream' : 'border-slate-300 bg-white'}`}>{checked && <Check className="w-3.5 h-3.5" />}</span><span className="min-w-0"><span className="block text-sm font-bold text-navy">#{project.rank} {project.title}</span><span className="block text-xs text-muted mt-0.5">{project.label}</span></span></label>; })}</div></div><div className="border-t border-line pt-5 space-y-3"><button onClick={handleDownload} disabled={isDownloading} className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-navy text-cream px-4 py-3.5 text-sm font-bold hover:bg-navy-soft disabled:opacity-60 shadow-navy transition-all"><Download className="w-4 h-4" /> {isDownloading ? 'Preparing PDF…' : 'Download passport PDF'}</button><button onClick={handleCopy} className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white text-navy px-4 py-3 text-sm font-bold hover:border-skilloryn-400 transition-all">{isCopied ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clipboard className="w-4 h-4" />} {isCopied ? 'Link copied' : 'Copy share link'}</button></div></aside><div className="rounded-3xl border border-line bg-surface/80 p-5 md:p-7 shadow-soft"><div className="flex items-center gap-3 mb-5"><div className="w-10 h-10 rounded-xl bg-skilloryn-100 text-skilloryn-700 flex items-center justify-center"><FileCheck2 className="w-5 h-5" /></div><div><h2 className="font-bold text-lg text-navy">A tiny card with a deep trail</h2><p className="text-sm text-muted">The map says where the candidate has been. The links show the proof.</p></div></div><div className="grid sm:grid-cols-3 gap-3"><div className="rounded-2xl bg-cream border border-copper-soft/60 p-4"><Route className="w-5 h-5 text-copper mb-3" /><p className="text-sm font-bold text-navy">Journey on top</p><p className="text-xs text-muted mt-1">The micro-map keeps the course checkpoints and destination visible at a glance.</p></div><div className="rounded-2xl bg-skilloryn-50 border border-skilloryn-200 p-4"><ShieldCheck className="w-5 h-5 text-skilloryn-700 mb-3" /><p className="text-sm font-bold text-navy">Identity below</p><p className="text-xs text-muted mt-1">Photo, role, passport ID, and selected claims stay together.</p></div><div className="rounded-2xl bg-fuchsia-50 border border-fuchsia-200 p-4"><ArrowRight className="w-5 h-5 text-fuchsia-700 mb-3" /><p className="text-sm font-bold text-navy">Evidence one click away</p><p className="text-xs text-muted mt-1">Skills open their own certification and activity trail.</p></div></div></div></div></main><footer className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 pb-8 text-xs text-muted flex items-center justify-between gap-4"><span>Skilloryn · Evidence-aware career profiles</span><Link to="/student" className="inline-flex items-center gap-1.5 font-bold text-navy hover:text-copper-strong">Open workspace <ChevronRight className="w-3.5 h-3.5" /></Link></footer></div>;
+  useEffect(() => {
+    window.localStorage.setItem(`skilloryn-shared-skills-${passportSlug}`, JSON.stringify(selectedSkills));
+  }, [passportSlug, selectedSkills]);
+
+  useEffect(() => {
+    window.localStorage.setItem(`skilloryn-shared-projects-${passportSlug}`, JSON.stringify(selectedProjects));
+  }, [passportSlug, selectedProjects]);
+
+  const toggleSkill = (id: string) => {
+    setSelectedSkills((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleProject = (id: string) => {
+    setSelectedProjects((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const visibleSkills = useMemo(
+    () => DEFAULT_SKILLS.filter((s) => selectedSkills[s.id] !== false),
+    [selectedSkills]
+  );
+
+  return (
+    <div className="min-h-screen bg-paper text-ink relative">
+      {/* Top Header */}
+      <header className="sticky top-0 z-30 border-b border-line/80 bg-white/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+          <Link to="/student" className="flex flex-col text-slate-900 hover:text-indigo-600 transition-colors">
+            <span className="font-black text-2xl text-slate-900 leading-none">Skilloryn</span>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-1">
+              Verified Credential
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Cryptographically Verified</span>
+            </div>
+
+            <Link
+              to="/student"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-navy px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Workspace
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+        {/* Title Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> Hero Product Showcase
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-navy">
+              Candidate Skill Passport
+            </h1>
+            <p className="text-muted text-sm sm:text-base mt-1.5 max-w-2xl leading-relaxed">
+              An authentic biometric booklet credential proving practical capability through real code audits, diagnostic baselines, and reproducible project evidence.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-card flex items-center gap-3 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+              <IdCard className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Unique Ledger ID</p>
+              <p className="font-mono text-xs font-extrabold text-navy">{passportId}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* HERO COMPONENT: THE AUTHENTIC SKILL PASSPORT BOOKLET */}
+        <section className="pt-2">
+          <SkillPassportBook
+            profile={DEFAULT_PROFILE}
+            skills={DEFAULT_SKILLS}
+            projects={DEFAULT_PROJECTS}
+            passportId={passportId}
+            selectedSkills={selectedSkills}
+            selectedProjects={selectedProjects}
+            onToggleSkill={toggleSkill}
+            onToggleProject={toggleProject}
+            showCoverByDefault={false}
+          />
+        </section>
+
+        {/* RECRUITER AUDIT & SHARING CONTROLS GRID */}
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start pt-4">
+          {/* LEFT: PRIVACY & CLAIM CUSTOMIZATION (LINKEDIN STYLE) */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-card space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                  <LockKeyhole className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-navy">Share Settings & Evidence Visibility</h3>
+                  <p className="text-xs text-muted">Select exactly which claims appear on the public booklet & PDF.</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
+                {visibleSkills.length} of {DEFAULT_SKILLS.length} Visible
+              </span>
+            </div>
+
+            {/* Skill Toggles */}
+            <div className="space-y-2.5">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">
+                Skills & Endorsement Visas
+              </span>
+              <div className="space-y-2">
+                {DEFAULT_SKILLS.map((skill) => {
+                  const isChecked = selectedSkills[skill.id] !== false;
+                  return (
+                    <label
+                      key={skill.id}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        isChecked
+                          ? 'border-blue-200 bg-blue-50/30'
+                          : 'border-slate-200 bg-slate-50/50 opacity-60'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleSkill(skill.id)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                          isChecked ? 'bg-navy border-navy text-white' : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {isChecked && <Check className="w-3 h-3" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-navy truncate">{skill.name}</p>
+                          <span className="text-[10px] font-mono font-bold text-blue-700">
+                            {skill.score}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted truncate mt-0.5">{skill.description}</p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Project Toggles */}
+            <div className="space-y-2.5 pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">
+                Evidence Repositories & Artifacts
+              </span>
+              <div className="space-y-2">
+                {DEFAULT_PROJECTS.map((proj) => {
+                  const isChecked = selectedProjects[proj.id] !== false;
+                  return (
+                    <label
+                      key={proj.id}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        isChecked
+                          ? 'border-blue-200 bg-blue-50/30'
+                          : 'border-slate-200 bg-slate-50/50 opacity-60'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleProject(proj.id)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                          isChecked ? 'bg-navy border-navy text-white' : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {isChecked && <Check className="w-3 h-3" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-navy">#{proj.rank} {proj.title}</p>
+                        <p className="text-[10px] text-muted mt-0.5">{proj.label} · {proj.outcome}</p>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: RECRUITER EVIDENCE LEDGER & AUDIT TRAIL */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-card space-y-5">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                <FileCheck2 className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-navy">Recruiter Verification Ledger</h3>
+                <p className="text-xs text-muted">Evidence telemetry and cryptographic proof for hiring teams.</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider font-extrabold text-blue-700">
+                  Diagnostic Baseline
+                </span>
+                <p className="text-xs font-bold text-navy">Skilloryn Timed Adaptive Diagnostic (92/100)</p>
+                <p className="text-[10px] text-muted leading-relaxed">
+                  30-minute timed evaluation covering partition windows, recursive CTEs, and execution plan benchmarks.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider font-extrabold text-emerald-700">
+                  Project Code Review
+                </span>
+                <p className="text-xs font-bold text-navy">Monzo-Ready Cohort Retention Analysis</p>
+                <p className="text-[10px] text-muted leading-relaxed">
+                  Peer-reviewed repository with unit-tested feature pipelines and reproducible Jupyter notebooks.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider font-extrabold text-amber-700">
+                  Continuous Provenance
+                </span>
+                <p className="text-xs font-bold text-navy">Tamper-Evident SHA-256 Ledger Record</p>
+                <p className="font-mono text-[9.5px] text-slate-500 break-all">
+                  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                to="/student"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-navy hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors"
+              >
+                Return to Student Dashboard <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Clean Minimal Footer */}
+      <footer className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-xs text-muted border-t border-line/60 flex flex-col sm:flex-row items-center justify-between gap-3 mt-10">
+        <p>&copy; {new Date().getFullYear()} Skilloryn Global Talent Network. All rights reserved.</p>
+        <div className="flex items-center gap-4">
+          <Link to="/choose-workspace" className="hover:text-navy font-medium">Switch Workspace</Link>
+          <span>·</span>
+          <Link to="/sign-in" className="hover:text-navy font-medium">Sign In</Link>
+        </div>
+      </footer>
+    </div>
+  );
 }
